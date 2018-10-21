@@ -1,12 +1,12 @@
 import pygame, random
 
 class car(pygame.sprite.Sprite):
-    def __init__(self, pos, orientation):
+    def __init__(self, pos, orientation, direction, group):
         pygame.sprite.Sprite.__init__(self)
         self.imagev = pygame.surface.Surface([20, 40])
         self.imageh = pygame.surface.Surface([40, 20])
-        self.imagevc = pygame.surface.Surface([20, 60])
-        self.imagehc = pygame.surface.Surface([60, 20])
+        self.imagevc = pygame.surface.Surface([20, 50])
+        self.imagehc = pygame.surface.Surface([50, 20])
         self.imagev.fill([255, 0, 0])
         self.imageh.fill([255, 0, 0])
         self.rectv = self.imagev.get_rect()
@@ -21,7 +21,7 @@ class car(pygame.sprite.Sprite):
         self.stopped = False
         self.crashed = False
         self.route = []
-        self.direction = 0
+        self.direction = direction
         if orientation == "vertical":
             self.image = self.imagev
             self.rect = self.rectv
@@ -31,12 +31,22 @@ class car(pygame.sprite.Sprite):
             self.rect = self.recth
             self.orientation = "h"
         self.rect.left, self.rect.top = list(pos)
-        self.rectvc.left, self.rectvc.top = pos[0], pos[1] - 10
-        self.recthc.left, self.recthc.top = pos[0] - 10, pos[1]
+        if direction == 1:
+            self.rectvc.left, self.rectvc.top = pos[0], pos[1] - 10
+            self.recthc.left, self.recthc.top = pos[0] - 10, pos[1]
+        elif direction == -1:
+            self.rectvc.left, self.rectvc.top = pos[0], pos[1]
+            self.recthc.left, self.recthc.top = pos[0], pos[1]
+        else:
+            self.rectvc.left, self.rectvc.top = pos[0], pos[1] - 10
+            self.recthc.left, self.recthc.top = pos[0] - 10, pos[1]
         if orientation == "vertical":
             self.rectc = self.rectvc
         elif orientation == "horizontal":
             self.rectc = self.recthc
+
+        if pygame.sprite.spritecollide(self, group, False):
+            self.kill()
 
     def stop(self):
         self.acceleration = 0
@@ -77,7 +87,7 @@ class car(pygame.sprite.Sprite):
             self.kill()
 
             for i in group:
-                if self.orientation == i.orientation and self.rectc.colliderect(i.rectc):
+                if self.orientation == i.orientation and self.rect.colliderect(i.rectc):
                     self.stopped = True
                     self.stop()
 
@@ -89,8 +99,18 @@ class car(pygame.sprite.Sprite):
 
             group.add(self)
 
-    def update(self, action, cars, mouse):
-        if self.rect.bottom < -100 or self.rect.top > 700 or self.rect.left < -100 or self.rect.right > 900:
+    def checktraffic(self, light):
+
+        self.stopped = False
+
+        if pygame.sprite.spritecollide(self, light, False):
+            for l in light:
+                if not l.light and self.rect.colliderect(l.rect) and l.lightpos == self.direction:
+                    self.stopped = True
+                    self.stop()
+
+    def update(self, action, cars, mouse, lights):
+        if self.rect.bottom < 0 or self.rect.top > 600 or self.rect.left < 0 or self.rect.right > 800:
             self.kill()
         if self.stopped == False:
             if action == "drive":
@@ -99,6 +119,8 @@ class car(pygame.sprite.Sprite):
                 self.drive(True)
         if action == "crash":
             self.checkcrash(cars)
+        if action == "traffic" and not self.crashed:
+            self.checktraffic(lights)
         if action == "kill" and self.rect.collidepoint(mouse):
             print "eh"
             self.kill()

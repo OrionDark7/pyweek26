@@ -17,6 +17,51 @@ class road(pygame.sprite.Sprite):
         self.rect.left, self.rect.top = list(pos)
         print self.rect.left, self.rect.top
 
+class light(pygame.sprite.Sprite):
+    def __init__(self, pos, orientation, light, lpos):
+        pygame.sprite.Sprite.__init__(self)
+        self.orientation = orientation
+        if orientation == "vertical":
+            self.image = pygame.surface.Surface([60, 10])
+            self.rect = pygame.surface.Surface([60, 60])
+        if orientation == "horizontal":
+            self.image = pygame.surface.Surface([10, 60])
+            self.rect = pygame.surface.Surface([60, 60])
+        self.rect = self.rect.get_rect()
+        self.rect.left, self.rect.top = list(pos)
+        self.irect = self.image.get_rect()
+        self.lightpos = lpos
+        if light:
+            self.light = light
+            self.image.fill([0, 255, 0])
+        elif not light:
+            self.light = light
+            self.image.fill([255, 0, 0])
+    def update(self, action, screen, mouse):
+        if action == "toggle" and self.irect.collidepoint(mouse):
+            self.light = not self.light
+            print self.light
+            if self.light:
+                self.image.fill([0, 255, 0])
+            elif not self.light:
+                self.image.fill([255, 0, 0])
+        if action == "draw":
+            if self.orientation == "vertical":
+                if self.lightpos == 1: #bottom
+                    screen.blit(self.image, [self.rect.left, self.rect.top + 120])
+                    self.irect.left, self.irect.top = self.rect.left, self.rect.top + 120
+                else: #top
+                    screen.blit(self.image, [self.rect.left, self.rect.top - 70])
+                    self.irect.left, self.irect.top = self.rect.left, self.rect.top - 70
+            elif self.orientation == "horizontal":
+                if self.lightpos == 1: #right
+                    screen.blit(self.image, [self.rect.left + 120, self.rect.top])
+                    self.irect.left, self.irect.top = self.rect.left + 120, self.rect.top
+                else: #left
+                    screen.blit(self.image, [self.rect.left - 70, self.rect.top])
+                    self.irect.left, self.irect.top = self.rect.left - 70, self.rect.top
+
+
 def generate_roads(roads):
     roadg = pygame.sprite.Group()
     carg  = pygame.sprite.Group()
