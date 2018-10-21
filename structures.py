@@ -4,18 +4,23 @@ import entities
 class road(pygame.sprite.Sprite):
     def __init__(self, pos, orientation):
         pygame.sprite.Sprite.__init__(self)
+        self.type = "road"
         self.orientation = orientation
         if orientation == "vertical":
-            self.image = pygame.surface.Surface([60, 600])
-            print self.image, pos
+            self.image = pygame.image.load("./images/roads/road-vertical.png")
         elif orientation == "horizontal":
-            self.image = pygame.surface.Surface([800, 60])
-            print self.image, pos
-        self.image.fill([0, 0, 0])
+            self.image = pygame.image.load("./images/roads/road-horizontal.png")
         self.image = self.image.convert()
         self.rect = self.image.get_rect()
         self.rect.left, self.rect.top = list(pos)
-        print self.rect.left, self.rect.top
+
+class intersection(pygame.sprite.Sprite):
+    def __init__(self, pos):
+        pygame.sprite.Sprite.__init__(self)
+        self.type = "intersection"
+        self.image = pygame.image.load("./images/roads/intersection.png")
+        self.rect = self.image.get_rect()
+        self.rect.left, self.rect.top = list(pos)
 
 class light(pygame.sprite.Sprite):
     def __init__(self, pos, orientation, light, lpos):
@@ -31,20 +36,55 @@ class light(pygame.sprite.Sprite):
         self.rect.left, self.rect.top = list(pos)
         self.irect = self.image.get_rect()
         self.lightpos = lpos
-        if light:
-            self.light = light
-            self.image.fill([0, 255, 0])
-        elif not light:
-            self.light = light
-            self.image.fill([255, 0, 0])
+        self.light = light
+        if self.light:
+            if self.orientation == "vertical":
+                if self.lightpos == 1:  # bottom
+                    self.image = pygame.image.load("./images/lights/down/light-down-green.png")
+                else:  # top
+                    self.image = pygame.image.load("./images/lights/down/light-down-green.png")
+            elif self.orientation == "horizontal":
+                if self.lightpos == 1:  # right
+                    self.image = pygame.image.load("./images/lights/left/light-left-green.png")
+                else:  # left
+                    self.image = pygame.image.load("./images/lights/right/light-right-green.png")
+        elif not self.light:
+            if self.orientation == "vertical":
+                if self.lightpos == 1:  # bottom
+                    self.image = pygame.image.load("./images/lights/down/light-down-red.png")
+                else:  # top
+                    self.image = pygame.image.load("./images/lights/down/light-down-red.png")
+            elif self.orientation == "horizontal":
+                if self.lightpos == 1:  # right
+                    self.image = pygame.image.load("./images/lights/left/light-left-red.png")
+                else:  # left
+                    self.image = pygame.image.load("./images/lights/right/light-right-red.png")
     def update(self, action, screen, mouse):
-        if action == "toggle" and self.irect.collidepoint(mouse):
+        if action == "toggle" and self.irect.collidepoint([mouse.rect.centerx, mouse.rect.centery]):
             self.light = not self.light
             print self.light
             if self.light:
-                self.image.fill([0, 255, 0])
+                if self.orientation == "vertical":
+                    if self.lightpos == 1:  # bottom
+                        self.image = pygame.image.load("./images/lights/down/light-down-green.png")
+                    else:  # top
+                        self.image = pygame.image.load("./images/lights/down/light-down-green.png")
+                elif self.orientation == "horizontal":
+                    if self.lightpos == 1:  # right
+                        self.image = pygame.image.load("./images/lights/left/light-left-green.png")
+                    else:  # left
+                        self.image = pygame.image.load("./images/lights/right/light-right-green.png")
             elif not self.light:
-                self.image.fill([255, 0, 0])
+                if self.orientation == "vertical":
+                    if self.lightpos == 1:  # bottom
+                        self.image = pygame.image.load("./images/lights/down/light-down-red.png")
+                    else:  # top
+                        self.image = pygame.image.load("./images/lights/down/light-down-red.png")
+                elif self.orientation == "horizontal":
+                    if self.lightpos == 1:  # right
+                        self.image = pygame.image.load("./images/lights/left/light-left-red.png")
+                    else:  # left
+                        self.image = pygame.image.load("./images/lights/right/light-right-red.png")
         if action == "draw":
             if self.orientation == "vertical":
                 if self.lightpos == 1: #bottom

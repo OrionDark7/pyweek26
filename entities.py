@@ -3,6 +3,9 @@ import pygame, random
 class car(pygame.sprite.Sprite):
     def __init__(self, pos, orientation, direction, group):
         pygame.sprite.Sprite.__init__(self)
+        self.color = random.choice(["red", "blue", "van", "taxi"])
+        imagefiles = ["./images/cars/" + self.color + "/car-left.png", None, "./images/cars/" + self.color + "/car-right.png"]
+        imagefiles2 = ["./images/cars/" + self.color + "/car-up.png", None, "./images/cars/" + self.color + "/car-down.png"]
         self.imagev = pygame.surface.Surface([20, 40])
         self.imageh = pygame.surface.Surface([40, 20])
         self.imagevc = pygame.surface.Surface([20, 50])
@@ -23,11 +26,11 @@ class car(pygame.sprite.Sprite):
         self.route = []
         self.direction = direction
         if orientation == "vertical":
-            self.image = self.imagev
+            self.image = pygame.image.load(imagefiles2[direction + 1])
             self.rect = self.rectv
             self.orientation = "v"
         elif orientation == "horizontal":
-            self.image = self.imageh
+            self.image = pygame.image.load(imagefiles[direction + 1])
             self.rect = self.recth
             self.orientation = "h"
         self.rect.left, self.rect.top = list(pos)
@@ -44,9 +47,6 @@ class car(pygame.sprite.Sprite):
             self.rectc = self.rectvc
         elif orientation == "horizontal":
             self.rectc = self.recthc
-
-        if pygame.sprite.spritecollide(self, group, False):
-            self.kill()
 
     def stop(self):
         self.acceleration = 0
@@ -70,8 +70,12 @@ class car(pygame.sprite.Sprite):
 
         #speed = direction(speed + acceleration)
 
-        if self.speed < 3:
+        if self.speed < 3 and self.speed > -3:
             self.speed = self.direction * (self.speed + self.acceleration)
+        if self.speed > 3:
+            self.speed = 3
+        if self.speed < -3:
+            self.speed = -3
 
         #move car + speed
 
@@ -112,6 +116,8 @@ class car(pygame.sprite.Sprite):
     def update(self, action, cars, mouse, lights):
         if self.rect.bottom < 0 or self.rect.top > 600 or self.rect.left < 0 or self.rect.right > 800:
             self.kill()
+            if mouse.objective["objective"] == "cars" and mouse.objective["amount"] > 0:
+                mouse.objective["amount"] -= 1
         if self.stopped == False:
             if action == "drive":
                 self.drive(False)
@@ -121,6 +127,6 @@ class car(pygame.sprite.Sprite):
             self.checkcrash(cars)
         if action == "traffic" and not self.crashed:
             self.checktraffic(lights)
-        if action == "kill" and self.rect.collidepoint(mouse):
+        if action == "kill" and self.rect.collidepoint([mouse.rect.centerx, mouse.rect.centery]):
             print "eh"
             self.kill()
