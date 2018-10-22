@@ -117,6 +117,7 @@ class car(pygame.sprite.Sprite):
                 self.stop()
                 mouse.accident = True
                 mouse.accidentinfo = [self.rect.centerx, self.rect.centery]
+                mouse.accidents += 0.5
                 if mouse.objective["objective"] == "crashes" and mouse.objective["amount"] > 0:
                     mouse.objective["amount"] -= 0.5
 
@@ -135,6 +136,7 @@ class car(pygame.sprite.Sprite):
     def update(self, action, cars, mouse, lights, screen):
         if self.rect.bottom < 0 or self.rect.top > 600 or self.rect.left < 0 or self.rect.right > 800:
             self.kill()
+            mouse.score += 1
             if mouse.objective["objective"] == "cars" and mouse.objective["amount"] > 0:
                 mouse.objective["amount"] -= 1
         if self.stopped == False:

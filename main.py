@@ -38,8 +38,28 @@ class mouseclass(pygame.sprite.Sprite):
         self.accident = False
         self.collidepoint = [0, 0]
         self.collide = False
+        self.accidents = 0.0
+        self.score = 0
     def move(self, x, y):
         self.rect.centerx, self.rect.centery = x, y
+
+class imagebutton(pygame.sprite.Sprite):
+    def __init__(self, image, pos, centered):
+        pygame.sprite.Sprite.__init__(self)
+        self.image = pygame.image.load(str(image))
+        self.rect = self.image.get_rect()
+        if centered:
+            self.rect.left, self.rect.top = 400 - self.rect.width/2, pos[1]
+        else:
+            self.rect.left, self.rect.top = pos
+        self.clicked = False
+    def click(self):
+        global mouse
+        if self.rect.colliderect(mouse.rect):
+            self.clicked = True
+    def draw(self):
+        global window
+        window.blit(self.image, [self.rect.left, self.rect.top])
 
 class button(pygame.sprite.Sprite):
     def __init__(self, text, pos, centered):
@@ -73,6 +93,11 @@ settingsButton = button("[s] settings", [20, 130], False)
 quitButton = button("[q] quit game", [20, 160], False)
 backButton = button("[b] back", [10, 10], False)
 resumeButton = button("[r] resume game", [20, 70], False)
+
+def selectScreen():
+    global window
+
+    #3 Buttons Down, 5 Buttons Right, use imagebutton class.
 
 def pauseScreen():
     global window
@@ -146,6 +171,17 @@ def gameOverScreen():
         [255, 255, 255])
     rect = 400 - text.get_rect().width / 2
     window.blit(text, [rect, 180])
+    font = pygame.font.Font("./resources/Danger on the Motorway.otf", 16)
+    text = font.render(
+        "cars passed: " + str(mouse.score), 1,
+        [255, 255, 255])
+    rect = 400 - text.get_rect().width / 2
+    window.blit(text, [rect, 220])
+    text = font.render(
+        "accidents: " + str(int(math.floor(mouse.accidents))), 1,
+        [255, 255, 255])
+    rect = 400 - text.get_rect().width / 2
+    window.blit(text, [rect, 240])
     menuButton.draw()
     replayButton.draw()
 
@@ -161,6 +197,17 @@ def winScreen():
         [255, 255, 255])
     rect = 400 - text.get_rect().width / 2
     window.blit(text, [rect, 180])
+    font = pygame.font.Font("./resources/Danger on the Motorway.otf", 16)
+    text = font.render(
+        "cars passed: " + str(mouse.score), 1,
+        [255, 255, 255])
+    rect = 400 - text.get_rect().width / 2
+    window.blit(text, [rect, 220])
+    text = font.render(
+        "accidents: " + str(int(math.floor(mouse.accidents))), 1,
+        [255, 255, 255])
+    rect = 400 - text.get_rect().width / 2
+    window.blit(text, [rect, 240])
     menuButton.draw()
     replayButton.draw()
     nextLevelButton.draw()
@@ -188,22 +235,31 @@ def displayinfo():
     rect.set_alpha(200)
     window.blit(rect, [10, 502])
     font = pygame.font.Font("./resources/Danger on the Motorway.otf", 16)
-    if len(str(mouse.objective["time"] % 60)) == 1:
-        text = font.render("time left: " + str(int(math.floor(mouse.objective["time"] / 60))) + ":0" + str(
-            mouse.objective["time"] % 60), 1, [255, 255, 255])
+    if mouse.objective["objective"] != "freeplay":
+        if len(str(mouse.objective["time"] % 60)) == 1:
+            text = font.render("time left: " + str(int(math.floor(mouse.objective["time"] / 60))) + ":0" + str(
+                mouse.objective["time"] % 60), 1, [255, 255, 255])
+        else:
+            text = font.render("time left: " + str(int(math.floor(mouse.objective["time"] / 60))) + ":" + str(mouse.objective["time"] % 60), 1, [255, 255, 255])
+        window.blit(text, [20, 560])
+        if str(mouse.objective["objective"]) == "cars":
+            text = font.render("level objective:", 1, [255, 255, 255])
+            window.blit(text, [20, 510])
+            text = font.render("get " + str(mouse.objective["amount"]) + " cars out of the level", 1, [255, 255, 255])
+            window.blit(text, [20, 535])
+        if str(mouse.objective["objective"]) == "crashes":
+            text = font.render("level objective:", 1, [255, 255, 255])
+            window.blit(text, [20, 510])
+            text = font.render("have less than " + str(int(math.floor(mouse.objective["amount"]))) + " accidents", 1, [255, 255, 255])
+            window.blit(text, [20, 535])
     else:
-        text = font.render("time left: " + str(int(math.floor(mouse.objective["time"] / 60))) + ":" + str(mouse.objective["time"] % 60), 1, [255, 255, 255])
-    window.blit(text, [20, 560])
-    if str(mouse.objective["objective"]) == "cars":
-        text = font.render("level objective:", 1, [255, 255, 255])
+        text = font.render("freeplay mode", 1, [255, 255, 255])
         window.blit(text, [20, 510])
-        text = font.render("get " + str(mouse.objective["amount"]) + " cars out of the level", 1, [255, 255, 255])
+        text = font.render("cars passed: " + str(int(math.floor(mouse.score))), 1,
+                           [255, 255, 255])
         window.blit(text, [20, 535])
-    if str(mouse.objective["objective"]) == "crashes":
-        text = font.render("level objective:", 1, [255, 255, 255])
-        window.blit(text, [20, 510])
-        text = font.render("have less than " + str(int(math.floor(mouse.objective["amount"]))) + " accidents", 1, [255, 255, 255])
-        window.blit(text, [20, 535])
+        text = font.render("accidents: " + str(int(math.floor(mouse.accidents))), 1, [255, 255, 255])
+        window.blit(text, [20, 560])
 
 def night(a):
     # A night time overdrop to make it seem dark
@@ -411,7 +467,7 @@ while running:
                 if not mouse.collide:
                     cargroup.add(entities.car(pos, i.orientation, dir, cargroup))
         if event.type == pygame.USEREVENT + 2:
-            if screen == "game":
+            if screen == "game" and mouse.objective["time"] != "freeplay":
                 if mouse.objective["time"] > 0:
                     mouse.objective["time"] -= 1
                 else:
