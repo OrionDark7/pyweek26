@@ -28,10 +28,10 @@ class light(pygame.sprite.Sprite):
         self.orientation = orientation
         if orientation == "vertical":
             self.image = pygame.surface.Surface([60, 10])
-            self.rect = pygame.surface.Surface([60, 40])
+            self.rect = pygame.surface.Surface([60, 20])
         if orientation == "horizontal":
             self.image = pygame.surface.Surface([10, 60])
-            self.rect = pygame.surface.Surface([40, 60])
+            self.rect = pygame.surface.Surface([20, 60])
         self.rect = self.rect.get_rect()
         self.rect.left, self.rect.top = list(pos)
         self.irect = self.image.get_rect()
@@ -101,6 +101,13 @@ class light(pygame.sprite.Sprite):
                     screen.blit(self.image, [self.rect.left - 70, self.rect.top])
                     self.irect.left, self.irect.top = self.rect.left - 70, self.rect.top
 
+class building(pygame.sprite.Sprite):
+    def __init__(self, pos, image):
+        pygame.sprite.Sprite.__init__(self)
+        self.image = pygame.image.load("./images/buildings/" + image + ".png")
+        #self.image = pygame.transform.scale2x(self.image)
+        self.rect = self.image.get_rect()
+        self.rect.left, self.rect.top = pos
 
 def generate_roads(roads):
     roadg = pygame.sprite.Group()

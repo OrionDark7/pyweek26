@@ -3,7 +3,7 @@ import pygame, random
 class car(pygame.sprite.Sprite):
     def __init__(self, pos, orientation, direction, group):
         pygame.sprite.Sprite.__init__(self)
-        self.color = random.choice(["red", "blue", "van", "taxi"])
+        self.color = random.choice(["red", "blue", "van", "taxi", "police"])
         imagefiles = ["./images/cars/" + self.color + "/car-left.png", None, "./images/cars/" + self.color + "/car-right.png"]
         imagefiles2 = ["./images/cars/" + self.color + "/car-up.png", None, "./images/cars/" + self.color + "/car-down.png"]
         self.headlightfiles = ["./images/cars/headlights/h1.png", "./images/cars/headlights/h2.png", "./images/cars/headlights/h3.png", "./images/cars/headlights/h4.png"]

@@ -8,19 +8,23 @@ window = pygame.display.set_mode([800, 600])
 window.fill([88, 198, 73])
 running = True
 show_me = False
-screen = "game"
+screen = "menu"
+previous = "menu"
 font = pygame.font.Font("./resources/Danger on the Motorway.otf", 16)
 bkg = pygame.image.load("./images/bkg.png")
 arrow = pygame.image.load("./images/arrow.png")
 night_ = pygame.surface.Surface([800, 600])
 night_setting = [200, 166, 133, 100, 66, 33, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 17, 33, 66, 100, 133, 166, 200, 217]
 accidentpos = [0, 0]
+level = 0
 cargroup = pygame.sprite.Group()
 roadgroup = pygame.sprite.Group()
 lightgroup = pygame.sprite.Group()
 intersectiongroup = pygame.sprite.Group()
+intersectiongroup = pygame.sprite.Group()
+buildinggroup = pygame.sprite.Group()
 pygame.time.set_timer(pygame.USEREVENT, 100) #Acceleration
-pygame.time.set_timer(pygame.USEREVENT + 1, 1250) #Car Spawn
+pygame.time.set_timer(pygame.USEREVENT + 1, 2250) #Car Spawn
 pygame.time.set_timer(pygame.USEREVENT + 2, 1000) #Countdown
 pygame.time.set_timer(pygame.USEREVENT + 3, 60000) #Time of Day change
 
@@ -51,7 +55,7 @@ class button(pygame.sprite.Sprite):
         self.clicked = False
     def click(self):
         global mouse
-        if self.rect.collidepoint([mouse.rect.centerx, mouse.rect.centery]):
+        if self.rect.colliderect(mouse.rect):
             self.clicked = True
     def draw(self):
         global window
@@ -59,8 +63,76 @@ class button(pygame.sprite.Sprite):
 
 mouse = mouseclass()
 menuButton = button("[m] menu", [400, 280], True)
+replayButton = button("[r] replay", [400, 300], True)
+nextLevelButton = button("[n] next level", [400, 320], True)
 closeButton = button("[c] close", [20, 45], False)
 showButton = button("[s] show me", [180, 45], False)
+playButton = button("[p] play game", [20, 70], False)
+howButton = button("[h] how to play", [20, 100], False)
+settingsButton = button("[s] settings", [20, 130], False)
+quitButton = button("[q] quit game", [20, 160], False)
+backButton = button("[b] back", [10, 10], False)
+resumeButton = button("[r] resume game", [20, 70], False)
+
+def pauseScreen():
+    global window
+    rect = pygame.surface.Surface([195, 180])
+    rect.fill([0, 0, 0])
+    rect.set_alpha(200)
+    window.blit(rect, [10, 10])
+    resumeButton.draw()
+    howButton.draw()
+    settingsButton.draw()
+    quitButton.draw()
+    font = pygame.font.Font("./resources/Danger on the Motorway.otf", 32)
+    text = font.render(
+        "paused", 1,
+        [255, 255, 255])
+    window.blit(text, [20, 22])
+
+def howScreen():
+    global window
+    rect = pygame.surface.Surface([800, 600])
+    rect.fill([0, 0, 0])
+    rect.set_alpha(200)
+    window.blit(rect, [0, 0])
+    font = pygame.font.Font("./resources/Danger on the Motorway.otf", 32)
+    text = font.render(
+        "how to play", 1,
+        [255, 255, 255])
+    rect = 400 - text.get_rect().width / 2
+    window.blit(text, [rect, 10])
+    backButton.draw()
+
+def settingsScreen():
+    global window
+    rect = pygame.surface.Surface([800, 600])
+    rect.fill([0, 0, 0])
+    rect.set_alpha(200)
+    window.blit(rect, [0, 0])
+    font = pygame.font.Font("./resources/Danger on the Motorway.otf", 32)
+    text = font.render(
+        "settings", 1,
+        [255, 255, 255])
+    rect = 400 - text.get_rect().width / 2
+    window.blit(text, [rect, 10])
+    backButton.draw()
+
+def menuScreen():
+    global window
+    rect = pygame.surface.Surface([195, 180])
+    rect.fill([0, 0, 0])
+    rect.set_alpha(200)
+    window.blit(rect, [10, 10])
+    playButton.draw()
+    howButton.draw()
+    settingsButton.draw()
+    quitButton.draw()
+    font = pygame.font.Font("./resources/Danger on the Motorway.otf", 32)
+    text = font.render(
+        "title", 1,
+        [255, 255, 255])
+    window.blit(text, [20, 22])
 
 def gameOverScreen():
     global window
@@ -75,6 +147,7 @@ def gameOverScreen():
     rect = 400 - text.get_rect().width / 2
     window.blit(text, [rect, 180])
     menuButton.draw()
+    replayButton.draw()
 
 def winScreen():
     global window
@@ -89,6 +162,8 @@ def winScreen():
     rect = 400 - text.get_rect().width / 2
     window.blit(text, [rect, 180])
     menuButton.draw()
+    replayButton.draw()
+    nextLevelButton.draw()
 
 def accidentNotification():
     global mouse, window, show_me, arrow, accidentpos
@@ -150,23 +225,79 @@ def update(group, action):
     else:
         group.update(action)
 
-roadgroup, cargroup, lightgroup, intersectiongroup, mouse.objective = levels.level(0)
+def getLevel(level):
+    global roadgroup, cargroup, lightgroup, intersectiongroup, buildinggroup, mouse
+    roadgroup, cargroup, lightgroup, intersectiongroup, buildinggroup, mouse.objective = levels.level(level)
+
+getLevel(0)
 
 while running:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
         if event.type == pygame.KEYDOWN:
-            if mouse.accident:
-                if event.key == pygame.K_c:
-                    mouse.accident = False
-                    show_me = False
+            if screen == "settings":
+                if event.key == pygame.K_b:
+                    screen = previous
+            if screen == "how":
+                if event.key == pygame.K_b:
+                    screen = previous
+            if screen == "game over":
+                if event.key == pygame.K_m:
+                    screen = "menu"
+                    level = 0
+                    getLevel(level)
+                if event.key == pygame.K_r:
+                    getLevel(level)
+                    screen = "game"
+            if screen == "you win":
+                if event.key == pygame.K_m:
+                    screen = "menu"
+                    level = 0
+                    getLevel(level)
+                if event.key == pygame.K_r:
+                    getLevel(level)
+                    screen = "game"
+                if event.key == pygame.K_n:
+                    screen = "game"
+                    level += 1
+                    getLevel(level)
+            if screen == "menu":
+                if event.key == pygame.K_p:
+                    screen = "game"
+                    level = 1
+                    getLevel(level)
                 if event.key == pygame.K_s:
-                    show_me = True
-                    accidentpos = [mouse.accidentinfo[0] - 30, mouse.accidentinfo[1] - 80]
-        if event.type == pygame.MOUSEBUTTONDOWN:
+                    screen = "settings"
+                if event.key == pygame.K_h:
+                    screen = "how"
+                if event.key == pygame.K_q:
+                    running = False
             if screen == "game":
-                mouse.move(event.pos[0], event.pos[1])
+                if event.key == pygame.K_ESCAPE:
+                    screen = "pause"
+                    update(cargroup, "stop")
+                if mouse.accident and screen == "game":
+                    if event.key == pygame.K_c:
+                        mouse.accident = False
+                        show_me = False
+                    if event.key == pygame.K_s:
+                        show_me = True
+                        accidentpos = [mouse.accidentinfo[0] - 30, mouse.accidentinfo[1] - 80]
+            elif screen == "pause":
+                if event.key == pygame.K_ESCAPE or event.key == pygame.K_r:
+                    screen = "game"
+                if event.key == pygame.K_h:
+                    screen = "how"
+                    previous = "pause"
+                if event.key == pygame.K_s:
+                    screen = "settings"
+                    previous = "pause"
+                if event.key == pygame.K_q:
+                    screen = "menu"
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            mouse.move(event.pos[0], event.pos[1])
+            if screen == "game":
                 update(cargroup, "kill")
                 update(lightgroup, "toggle")
                 if mouse.accident:
@@ -179,14 +310,92 @@ while running:
                         show_me = True
                         accidentpos = [mouse.accidentinfo[0] - 30, mouse.accidentinfo[1] - 80]
                         showButton.clicked = False
+            if screen == "menu":
+                playButton.click()
+                if playButton.clicked:
+                    screen = "game"
+                    level = 1
+                    getLevel(level)
+                    playButton.clicked = False
+                howButton.click()
+                if howButton.clicked:
+                    screen = "how"
+                    previous = "menu"
+                    howButton.clicked = False
+                settingsButton.click()
+                if settingsButton.clicked:
+                    screen = "settings"
+                    previous = "menu"
+                    settingsButton.clicked = False
+                quitButton.click()
+                if quitButton.clicked:
+                    running = False
+                    quitButton.clicked = False
+            if screen == "pause":
+                resumeButton.click()
+                if resumeButton.clicked:
+                    screen = "game"
+                    getLevel(level)
+                    resumeButton.clicked = False
+                howButton.click()
+                if howButton.clicked:
+                    screen = "how"
+                    previous = "pause"
+                    howButton.clicked = False
+                settingsButton.click()
+                if settingsButton.clicked:
+                    screen = "settings"
+                    previous = "pause"
+                    settingsButton.clicked = False
+                quitButton.click()
+                if quitButton.clicked:
+                    screen = "menu"
+                    level = 0
+                    getLevel(0)
+                    quitButton.clicked = False
             if screen == "game over":
                 menuButton.click()
                 if menuButton.clicked:
-                    running = False
+                    screen = "menu"
+                    level = 0
+                    getLevel(level)
                     menuButton.clicked = False
+                replayButton.click()
+                if replayButton.clicked:
+                    getLevel(level)
+                    screen = "game"
+                    replayButton.clicked = False
+            if screen == "you win":
+                menuButton.click()
+                if menuButton.clicked:
+                    screen = "menu"
+                    level = 0
+                    getLevel(level)
+                    menuButton.clicked = False
+                replayButton.click()
+                if replayButton.clicked:
+                    getLevel(level)
+                    screen = "game"
+                    replayButton.clicked = False
+                nextLevelButton.click()
+                if nextLevelButton.clicked:
+                    level += 1
+                    getLevel(level)
+                    screen = "game"
+                    nextLevelButton.clicked = False
+            if screen == "settings":
+                backButton.click()
+                if backButton.clicked:
+                    screen = previous
+                    backButton.clicked = False
+            if screen == "how":
+                backButton.click()
+                if backButton.clicked:
+                    screen = previous
+                    backButton.clicked = False
         if event.type == pygame.USEREVENT:
             update(cargroup, "accel")
-        if event.type == pygame.USEREVENT + 1 and screen == "game":
+        if event.type == pygame.USEREVENT + 1 and screen == "game" or screen == "menu":
             for i in roadgroup:
                 orientation = i.orientation
                 direction = random.choice([0, 1])
@@ -202,16 +411,17 @@ while running:
                 if not mouse.collide:
                     cargroup.add(entities.car(pos, i.orientation, dir, cargroup))
         if event.type == pygame.USEREVENT + 2:
-            if mouse.objective["time"] > 0:
-                mouse.objective["time"] -= 1
-            else:
-                if mouse.objective["objective"] == "cars":
-                    screen = "game over"
-                    update(cargroup, "stop")
-                if mouse.objective["objective"] == "crashes":
-                    screen = "you win"
-                    update(cargroup, "stop")
-        if event.type == pygame.USEREVENT + 3:
+            if screen == "game":
+                if mouse.objective["time"] > 0:
+                    mouse.objective["time"] -= 1
+                else:
+                    if mouse.objective["objective"] == "cars":
+                        screen = "game over"
+                        update(cargroup, "stop")
+                    if mouse.objective["objective"] == "crashes":
+                        screen = "you win"
+                        update(cargroup, "stop")
+        if event.type == pygame.USEREVENT + 3 and screen == "game":
             if mouse.objective["tod"] < 23:
                 mouse.objective["tod"] += 1
             elif mouse.objective["tod"] >= 23:
@@ -221,6 +431,7 @@ while running:
         background()
         roadgroup.draw(window)
         intersectiongroup.draw(window)
+        buildinggroup.draw(window)
         update(cargroup, "traffic")
         update(cargroup, "crash")
         update(cargroup, "drive")
@@ -241,6 +452,7 @@ while running:
         background()
         roadgroup.draw(window)
         intersectiongroup.draw(window)
+        buildinggroup.draw(window)
         update(cargroup, "draw")
         update(lightgroup, "draw")
         night(night_setting[mouse.objective["tod"]])
@@ -250,10 +462,40 @@ while running:
         background()
         roadgroup.draw(window)
         intersectiongroup.draw(window)
+        buildinggroup.draw(window)
         update(cargroup, "draw")
         update(lightgroup, "draw")
         night(night_setting[mouse.objective["tod"]])
         winScreen()
+
+    if screen == "menu":
+        background()
+        roadgroup.draw(window)
+        intersectiongroup.draw(window)
+        buildinggroup.draw(window)
+        update(cargroup, "traffic")
+        update(cargroup, "crash")
+        update(cargroup, "drive")
+        update(cargroup, "draw")
+        update(lightgroup, "draw")
+        menuScreen()
+
+    if screen == "how":
+        background()
+        howScreen()
+
+    if screen == "settings":
+        background()
+        settingsScreen()
+
+    if screen == "pause":
+        background()
+        roadgroup.draw(window)
+        intersectiongroup.draw(window)
+        buildinggroup.draw(window)
+        update(cargroup, "draw")
+        update(lightgroup, "draw")
+        pauseScreen()
 
     pygame.display.flip()
 
