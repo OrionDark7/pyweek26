@@ -6,6 +6,7 @@ class car(pygame.sprite.Sprite):
         self.color = random.choice(["red", "blue", "van", "taxi"])
         imagefiles = ["./images/cars/" + self.color + "/car-left.png", None, "./images/cars/" + self.color + "/car-right.png"]
         imagefiles2 = ["./images/cars/" + self.color + "/car-up.png", None, "./images/cars/" + self.color + "/car-down.png"]
+        self.headlightfiles = ["./images/cars/headlights/h1.png", "./images/cars/headlights/h2.png", "./images/cars/headlights/h3.png", "./images/cars/headlights/h4.png"]
         self.imagev = pygame.surface.Surface([20, 40])
         self.imageh = pygame.surface.Surface([40, 20])
         self.imagevc = pygame.surface.Surface([20, 50])
@@ -48,6 +49,21 @@ class car(pygame.sprite.Sprite):
         elif orientation == "horizontal":
             self.rectc = self.recthc
 
+        if self.orientation == "h":
+            if self.direction == 1:
+                self.headlight = pygame.image.load(self.headlightfiles[1])
+                self.headlight.set_alpha(00)
+            elif self.direction == -1:
+                self.headlight = pygame.image.load(self.headlightfiles[3])
+                self.headlight.set_alpha(00)
+        elif self.orientation == "v":
+            if self.direction == 1:
+                self.headlight = pygame.image.load(self.headlightfiles[2])
+                self.headlight.set_alpha(00)
+            elif self.direction == -1:
+                self.headlight = pygame.image.load(self.headlightfiles[0])
+                self.headlight.set_alpha(00)
+
     def stop(self):
         self.acceleration = 0
         self.speed = 0
@@ -86,7 +102,7 @@ class car(pygame.sprite.Sprite):
             self.rect.centery += self.speed
             self.rectc.centery += self.speed
 
-    def checkcrash(self, group):
+    def checkcrash(self, group, mouse):
         if not self.crashed:
             self.kill()
 
@@ -99,7 +115,10 @@ class car(pygame.sprite.Sprite):
                 self.stopped = True
                 self.crashed = True
                 self.stop()
-                print "Car Crashed!" + str([self.rect.centerx, self.rect.centery])
+                mouse.accident = True
+                mouse.accidentinfo = [self.rect.centerx, self.rect.centery]
+                if mouse.objective["objective"] == "crashes" and mouse.objective["amount"] > 0:
+                    mouse.objective["amount"] -= 0.5
 
             group.add(self)
 
@@ -113,7 +132,7 @@ class car(pygame.sprite.Sprite):
                     self.stopped = True
                     self.stop()
 
-    def update(self, action, cars, mouse, lights):
+    def update(self, action, cars, mouse, lights, screen):
         if self.rect.bottom < 0 or self.rect.top > 600 or self.rect.left < 0 or self.rect.right > 800:
             self.kill()
             if mouse.objective["objective"] == "cars" and mouse.objective["amount"] > 0:
@@ -124,9 +143,28 @@ class car(pygame.sprite.Sprite):
             if action == "accel":
                 self.drive(True)
         if action == "crash":
-            self.checkcrash(cars)
+            self.checkcrash(cars, mouse)
         if action == "traffic" and not self.crashed:
             self.checktraffic(lights)
         if action == "kill" and self.rect.collidepoint([mouse.rect.centerx, mouse.rect.centery]):
             print "eh"
             self.kill()
+        if action == "draw":
+            if mouse.objective["tod"] < 6 or mouse.objective["tod"] > 15 and not self.crashed:
+                if self.orientation == "h":
+                    if self.direction == 1:
+                        screen.blit(self.headlight, [self.rect.left + 35, self.rect.top])
+                    elif self.direction == -1:
+                        screen.blit(self.headlight, [self.rect.left - 15 , self.rect.top])
+                elif self.orientation == "v":
+                    if self.direction == 1:
+                        screen.blit(self.headlight, [self.rect.left, self.rect.top + 35])
+                    elif self.direction == -1:
+                        screen.blit(self.headlight, [self.rect.left, self.rect.top - 15])
+            screen.blit(self.image, [self.rect.left, self.rect.top])
+        if action == "stop":
+            self.stop()
+            self.stopped = True
+        if action == "collidepoint":
+            if (self.rect.left < 60 and self.rect.top == mouse.collidepoint[1]) or (self.rect.right > 740 and self.rect.top == mouse.collidepoint[1]) or (self.rect.top < 60 and self.rect.left == mouse.collidepoint[0]) or (self.rect.bottom > 540 and self.rect.left == mouse.collidepoint[0]):
+                mouse.collide = True

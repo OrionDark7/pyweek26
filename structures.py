@@ -28,10 +28,10 @@ class light(pygame.sprite.Sprite):
         self.orientation = orientation
         if orientation == "vertical":
             self.image = pygame.surface.Surface([60, 10])
-            self.rect = pygame.surface.Surface([60, 60])
+            self.rect = pygame.surface.Surface([60, 40])
         if orientation == "horizontal":
             self.image = pygame.surface.Surface([10, 60])
-            self.rect = pygame.surface.Surface([60, 60])
+            self.rect = pygame.surface.Surface([40, 60])
         self.rect = self.rect.get_rect()
         self.rect.left, self.rect.top = list(pos)
         self.irect = self.image.get_rect()

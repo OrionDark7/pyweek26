@@ -13,7 +13,7 @@ def level(level):
     intersections = pygame.sprite.Group()
     objectives = {}
     if level == 0:
-        objectives = {"objective" : "cars", "amount" : 10, "time" : 180, "tod" : 4}
+        objectives = {"objective" : "cars", "amount" : 3, "time" : 180, "tod" : 18}
         roads.add(road([370, 0], "vertical"))
         roads.add(road([0, 370], "horizontal"))
         lights.add(light([370, 310], "vertical", True, 1))
@@ -27,5 +27,5 @@ def level(level):
         lights.add(light([430, 170], "horizontal", True, -1))
         intersections.add(intersection([370, 370]))
         intersections.add(intersection([370, 170]))
-        cars.add(car([374, 0], "vertical", -1, cars))
+
     return roads, cars, lights, intersections, objectives
