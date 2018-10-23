@@ -42,6 +42,13 @@ class mouseclass(pygame.sprite.Sprite):
         self.score = 0
     def move(self, x, y):
         self.rect.centerx, self.rect.centery = x, y
+    def reset_stats(self):
+        self.objective = {}
+        self.accident = False
+        self.collidepoint = [0, 0]
+        self.collide = False
+        self.accidents = 0.0
+        self.score = 0
 
 class imagebutton(pygame.sprite.Sprite):
     def __init__(self, image, pos, centered):
@@ -81,6 +88,31 @@ class button(pygame.sprite.Sprite):
         global window
         window.blit(self.image, [self.rect.left, self.rect.top])
 
+class switch(pygame.sprite.Sprite):
+    def __init__(self, pos, toggle):
+        pygame.sprite.Sprite.__init__(self)
+        self.images = [pygame.image.load("./images/ui/switch/switch-on.png"), pygame.image.load("./images/ui/switch/switch-off.png")]
+        self.state = bool(toggle)
+        self.clicked = False
+        if self.state:
+            self.image = self.images[0]
+        else:
+            self.image = self.images[1]
+        self.rect = self.image.get_rect()
+        self.rect.left, self.rect.top = list(pos)
+    def toggle(self):
+        global mouse
+        if self.rect.colliderect(mouse.rect):
+            self.clicked = True
+            self.state = not self.state
+            if self.state:
+                self.image = self.images[0]
+            else:
+                self.image = self.images[1]
+    def draw(self):
+        global window
+        window.blit(self.image, [self.rect.left, self.rect.top])
+
 mouse = mouseclass()
 menuButton = button("[m] menu", [400, 280], True)
 replayButton = button("[r] replay", [400, 300], True)
@@ -93,11 +125,38 @@ settingsButton = button("[s] settings", [20, 130], False)
 quitButton = button("[q] quit game", [20, 160], False)
 backButton = button("[b] back", [10, 10], False)
 resumeButton = button("[r] resume game", [20, 70], False)
+fullSwitch = switch([140, 58], False)
+classic = imagebutton("./images/ui/buttons/freeplay.png", [80, 240], False)
+survival = imagebutton("./images/ui/buttons/freeplay.png", [320, 240], False)
+freeplay = imagebutton("./images/ui/buttons/freeplay.png", [560, 240], False)
 
 def selectScreen():
     global window
-
-    #3 Buttons Down, 5 Buttons Right, use imagebutton class.
+    rect = pygame.surface.Surface([800, 200])
+    rect.fill([0, 0, 0])
+    rect.set_alpha(200)
+    window.blit(rect, [0, 200])
+    classic.draw()
+    survival.draw()
+    freeplay.draw()
+    font = pygame.font.Font("./resources/Danger on the Motorway.otf", 16)
+    text = font.render(
+        "classic", 1,
+        [255, 255, 255])
+    rect = text.get_rect().width / 2
+    window.blit(text, [160 - rect, 210])
+    font = pygame.font.Font("./resources/Danger on the Motorway.otf", 16)
+    text = font.render(
+        "survival", 1,
+        [255, 255, 255])
+    rect = text.get_rect().width / 2
+    window.blit(text, [400 - rect, 210])
+    font = pygame.font.Font("./resources/Danger on the Motorway.otf", 16)
+    text = font.render(
+        "freeplay", 1,
+        [255, 255, 255])
+    rect = text.get_rect().width / 2
+    window.blit(text, [640 - rect, 210])
 
 def pauseScreen():
     global window
@@ -142,6 +201,12 @@ def settingsScreen():
     rect = 400 - text.get_rect().width / 2
     window.blit(text, [rect, 10])
     backButton.draw()
+    font = pygame.font.Font("./resources/Danger on the Motorway.otf", 16)
+    text = font.render(
+        "fullscreen", 1,
+        [255, 255, 255])
+    window.blit(text, [10, 60])
+    fullSwitch.draw()
 
 def menuScreen():
     global window
@@ -177,13 +242,24 @@ def gameOverScreen():
         [255, 255, 255])
     rect = 400 - text.get_rect().width / 2
     window.blit(text, [rect, 220])
-    text = font.render(
-        "accidents: " + str(int(math.floor(mouse.accidents))), 1,
-        [255, 255, 255])
-    rect = 400 - text.get_rect().width / 2
-    window.blit(text, [rect, 240])
-    menuButton.draw()
-    replayButton.draw()
+    if mouse.objective["objective"] == "survival":
+        if len(str(mouse.objective["time"] % 60)) == 1:
+            text = font.render("time survived: " + str(int(math.floor(mouse.objective["time"] / 60))) + ":0" + str(
+                mouse.objective["time"] % 60), 1, [255, 255, 255])
+        else:
+            text = font.render("time survived: " + str(int(math.floor(mouse.objective["time"] / 60))) + ":" + str(mouse.objective["time"] % 60), 1, [255, 255, 255])
+        rect = 400 - text.get_rect().width / 2
+        window.blit(text, [rect, 240])
+        menuButton.draw()
+        replayButton.draw()
+    else:
+        text = font.render(
+            "accidents: " + str(int(math.floor(mouse.accidents))), 1,
+            [255, 255, 255])
+        rect = 400 - text.get_rect().width / 2
+        window.blit(text, [rect, 240])
+        menuButton.draw()
+        replayButton.draw()
 
 def winScreen():
     global window
@@ -235,7 +311,7 @@ def displayinfo():
     rect.set_alpha(200)
     window.blit(rect, [10, 502])
     font = pygame.font.Font("./resources/Danger on the Motorway.otf", 16)
-    if mouse.objective["objective"] != "freeplay":
+    if mouse.objective["objective"] != "freeplay" and mouse.objective["objective"] != "survival":
         if len(str(mouse.objective["time"] % 60)) == 1:
             text = font.render("time left: " + str(int(math.floor(mouse.objective["time"] / 60))) + ":0" + str(
                 mouse.objective["time"] % 60), 1, [255, 255, 255])
@@ -252,7 +328,19 @@ def displayinfo():
             window.blit(text, [20, 510])
             text = font.render("have less than " + str(int(math.floor(mouse.objective["amount"]))) + " accidents", 1, [255, 255, 255])
             window.blit(text, [20, 535])
-    else:
+    elif mouse.objective["objective"] == "survival":
+        text = font.render("cars passed: " + str(int(math.floor(mouse.score))), 1,
+                           [255, 255, 255])
+        window.blit(text, [20, 535])
+        text = font.render("accidents: " + str(int(math.floor(mouse.accidents))), 1, [255, 255, 255])
+        window.blit(text, [20, 560])
+        if len(str(mouse.objective["time"] % 60)) == 1:
+            text = font.render("time: " + str(int(math.floor(mouse.objective["time"] / 60))) + ":0" + str(
+                mouse.objective["time"] % 60), 1, [255, 255, 255])
+        else:
+            text = font.render("time: " + str(int(math.floor(mouse.objective["time"] / 60))) + ":" + str(mouse.objective["time"] % 60), 1, [255, 255, 255])
+        window.blit(text, [20, 510])
+    elif mouse.objective["objective"] == "freeplay":
         text = font.render("freeplay mode", 1, [255, 255, 255])
         window.blit(text, [20, 510])
         text = font.render("cars passed: " + str(int(math.floor(mouse.score))), 1,
@@ -320,9 +408,9 @@ while running:
                     getLevel(level)
             if screen == "menu":
                 if event.key == pygame.K_p:
-                    screen = "game"
-                    level = 1
-                    getLevel(level)
+                    screen = "select"
+                    # level = 1
+                    # getLevel(level)
                 if event.key == pygame.K_s:
                     screen = "settings"
                 if event.key == pygame.K_h:
@@ -369,9 +457,7 @@ while running:
             if screen == "menu":
                 playButton.click()
                 if playButton.clicked:
-                    screen = "game"
-                    level = 1
-                    getLevel(level)
+                    screen = "select"
                     playButton.clicked = False
                 howButton.click()
                 if howButton.clicked:
@@ -416,8 +502,10 @@ while running:
                     level = 0
                     getLevel(level)
                     menuButton.clicked = False
+                    mouse.reset_stats()
                 replayButton.click()
                 if replayButton.clicked:
+                    mouse.reset_stats()
                     getLevel(level)
                     screen = "game"
                     replayButton.clicked = False
@@ -428,8 +516,10 @@ while running:
                     level = 0
                     getLevel(level)
                     menuButton.clicked = False
+                    mouse.reset_stats()
                 replayButton.click()
                 if replayButton.clicked:
+                    mouse.reset_stats()
                     getLevel(level)
                     screen = "game"
                     replayButton.clicked = False
@@ -439,16 +529,41 @@ while running:
                     getLevel(level)
                     screen = "game"
                     nextLevelButton.clicked = False
+                    mouse.reset_stats()
             if screen == "settings":
                 backButton.click()
                 if backButton.clicked:
                     screen = previous
                     backButton.clicked = False
+                fullSwitch.toggle()
+                if fullSwitch.clicked:
+                    if fullSwitch.state:
+                        window = pygame.display.set_mode([800, 600], pygame.FULLSCREEN)
+                    else:
+                        window = pygame.display.set_mode([800, 600])
+                    fullSwitch.clicked = False
             if screen == "how":
                 backButton.click()
                 if backButton.clicked:
                     screen = previous
                     backButton.clicked = False
+            if screen == "select":
+                classic.click()
+                if classic.clicked:
+                    level = 1
+                    getLevel(level)
+                    screen = "game"
+                survival.click()
+                if survival.clicked:
+                    level = "survival"
+                    getLevel(level)
+                    screen = "game"
+                freeplay.click()
+                if freeplay.clicked:
+                    level = "freeplay"
+                    getLevel(level)
+                    screen = "game"
+
         if event.type == pygame.USEREVENT:
             update(cargroup, "accel")
         if event.type == pygame.USEREVENT + 1 and screen == "game" or screen == "menu":
@@ -468,9 +583,12 @@ while running:
                     cargroup.add(entities.car(pos, i.orientation, dir, cargroup))
         if event.type == pygame.USEREVENT + 2:
             if screen == "game" and mouse.objective["time"] != "freeplay":
-                if mouse.objective["time"] > 0:
-                    mouse.objective["time"] -= 1
-                else:
+                if mouse.objective["objective"] == "survival":
+                    mouse.objective["time"] += 1
+                elif mouse.objective["objective"] != "survival":
+                    if mouse.objective["time"] > 0:
+                        mouse.objective["time"] -= 1
+                if mouse.objective["time"] <= 0:
                     if mouse.objective["objective"] == "cars":
                         screen = "game over"
                         update(cargroup, "stop")
@@ -502,7 +620,11 @@ while running:
             screen = "game over"
             update(cargroup, "stop")
         if mouse.accident:
-            accidentNotification()
+            if mouse.objective["objective"] == "survival":
+                screen = "game over"
+                update(cargroup, "stop")
+            else:
+                accidentNotification()
 
     if screen == "game over":
         background()
@@ -552,6 +674,18 @@ while running:
         update(cargroup, "draw")
         update(lightgroup, "draw")
         pauseScreen()
+
+    if screen == "select":
+        background()
+        roadgroup.draw(window)
+        intersectiongroup.draw(window)
+        buildinggroup.draw(window)
+        update(cargroup, "traffic")
+        update(cargroup, "crash")
+        update(cargroup, "drive")
+        update(cargroup, "draw")
+        update(lightgroup, "draw")
+        selectScreen()
 
     pygame.display.flip()
 

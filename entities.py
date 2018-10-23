@@ -79,19 +79,20 @@ class car(pygame.sprite.Sprite):
         if accel:
 
             if self.acceleration < 2 and self.acceleration != 0:
-                self.acceleration = self.acceleration + 0.1
+                self.acceleration = self.acceleration * 2
 
             if self.acceleration == 0:
                 self.acceleration = 1
 
         #speed = direction(speed + acceleration)
 
-        if self.speed < 3 and self.speed > -3:
-            self.speed = self.direction * (self.speed + self.acceleration)
-        if self.speed > 3:
-            self.speed = 3
-        if self.speed < -3:
-            self.speed = -3
+        if self.speed < 6 and self.speed > -6:
+            self.speed = (self.speed + self.acceleration)
+            self.speed = self.speed * self.direction
+        if self.speed > 6:
+            self.speed = 6
+        if self.speed < -6:
+            self.speed = -6
 
         #move car + speed
 
