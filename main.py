@@ -28,6 +28,23 @@ pygame.time.set_timer(pygame.USEREVENT + 1, 2250) #Car Spawn
 pygame.time.set_timer(pygame.USEREVENT + 2, 1000) #Countdown
 pygame.time.set_timer(pygame.USEREVENT + 3, 60000) #Time of Day change
 
+class trafficbutton(pygame.sprite.Sprite):
+    def __init__(self, pos, id):
+        pygame.sprite.Sprite.__init__(self)
+        self.image = pygame.surface.Surface([20, 20])
+        self.image.fill([0, 0, 0])
+        self.image.set_alpha(200)
+        self.rect = self.image.get_rect()
+        self.rect.left, self.rect.top = list(pos)
+        self.clicked = False
+    def click(self):
+        global mouse, lightgroup
+        if self.rect.colliderect(mouse.rect):
+            self.clicked = True
+            mouse.id = self.id
+            update(lightgroup, "toggle-id")
+            #YOU WERE WORKING ON THIS AND PUTTING ID'S ON TRAFFIC LIGHTS
+
 class mouseclass(pygame.sprite.Sprite):
     def __init__(self):
         pygame.sprite.Sprite.__init__(self)
@@ -132,6 +149,27 @@ fullSwitch = switch([140, 58], False)
 classic = imagebutton("./images/ui/buttons/freeplay.png", [80, 240], False)
 survival = imagebutton("./images/ui/buttons/freeplay.png", [320, 240], False)
 freeplay = imagebutton("./images/ui/buttons/freeplay.png", [560, 240], False)
+
+def selectLevel():
+    global window
+    image = pygame.image.load("./images/ui/buttons/freeplay.png")
+    rect = pygame.surface.Surface([800, 600])
+    rect.fill([0, 0, 0])
+    rect.set_alpha(200)
+    window.blit(rect, [0, 0])
+    backButton.draw()
+    window.blit(image, [32, 60])
+    window.blit(image, [224, 60])
+    window.blit(image, [416, 60])
+    window.blit(image, [608, 60])
+    window.blit(image, [32, 240])
+    window.blit(image, [224, 240])
+    window.blit(image, [416, 240])
+    window.blit(image, [608, 240])
+    window.blit(image, [32, 420])
+    window.blit(image, [224, 420])
+    window.blit(image, [416, 420])
+    window.blit(image, [608, 420])
 
 def selectScreen():
     global window
@@ -414,11 +452,12 @@ while running:
                     screen = "game"
                     level += 1
                     getLevel(level)
-            if screen == "select":
+            if screen == "select level":
+                if event.key == pygame.K_b:
+                    screen = "select"
+            elif screen == "select":
                 if event.key == pygame.K_c:
-                    screen = "game"
-                    level = 1
-                    getLevel(level)
+                    screen = "select level"
                 if event.key == pygame.K_s:
                     screen = "game"
                     level = "survival"
@@ -573,13 +612,15 @@ while running:
                 if backButton.clicked:
                     screen = previous
                     backButton.clicked = False
+            if screen == "select level":
+                backButton.click()
+                if backButton.clicked:
+                    screen = "select"
+                    backButton.clicked = False
             if screen == "select":
                 classic.click()
                 if classic.clicked:
-                    mouse.reset_stats()
-                    level = 1
-                    getLevel(level)
-                    screen = "game"
+                    screen = "select level"
                     classic.clicked = False
                 survival.click()
                 if survival.clicked:
@@ -729,6 +770,10 @@ while running:
         update(cargroup, "draw")
         update(lightgroup, "draw")
         selectScreen()
+
+    if screen == "select level":
+        background()
+        selectLevel()
 
     pygame.display.flip()
 
