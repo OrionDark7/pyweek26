@@ -23,7 +23,7 @@ class intersection(pygame.sprite.Sprite):
         self.rect.left, self.rect.top = list(pos)
 
 class light(pygame.sprite.Sprite):
-    def __init__(self, pos, orientation, light):
+    def __init__(self, pos, orientation, light, id):
         pygame.sprite.Sprite.__init__(self)
         self.orientation = orientation
         self.id = id
@@ -38,37 +38,42 @@ class light(pygame.sprite.Sprite):
         self.irect = self.image.get_rect()
         self.light = light
         if self.light:
-            if self.orientation == "vertical":
-                self.image1 = pygame.image.load("./images/lights/down/light-down-green.png")
-                self.image2 = pygame.image.load("./images/lights/down/light-down-green.png")
-            elif self.orientation == "horizontal":
-                self.image1 = pygame.image.load("./images/lights/left/light-left-green.png")
-                self.image2 = pygame.image.load("./images/lights/right/light-right-green.png")
+            self.image1 = self.image
+            self.image1.fill([0, 255, 0])
+            self.image2 = self.image
+            self.image2.fill([0, 255, 0])
         elif not self.light:
-            if self.orientation == "vertical":
-                self.image1 = pygame.image.load("./images/lights/down/light-down-red.png")
-                self.image2 = pygame.image.load("./images/lights/down/light-down-red.png")
-            elif self.orientation == "horizontal":
-                self.image1 = pygame.image.load("./images/lights/left/light-left-red.png")
-                self.image2 = pygame.image.load("./images/lights/right/light-right-red.png")
+            self.image1 = self.image
+            self.image1.fill([255, 0, 0])
+            self.image2 = self.image
+            self.image2.fill([255, 0, 0])
     def update(self, action, screen, mouse):
         if action == "toggle" and self.rect.collidepoint([mouse.rect.centerx, mouse.rect.centery]):
             self.light = not self.light
             print self.light
             if self.light:
-                if self.orientation == "vertical":
-                    self.image1 = pygame.image.load("./images/lights/down/light-down-green.png")
-                    self.image2 = pygame.image.load("./images/lights/down/light-down-green.png")
-                elif self.orientation == "horizontal":
-                    self.image1 = pygame.image.load("./images/lights/left/light-left-green.png")
-                    self.image2 = pygame.image.load("./images/lights/right/light-right-green.png")
+                self.image1 = self.image
+                self.image1.fill([0, 255, 0])
+                self.image2 = self.image
+                self.image2.fill([0, 255, 0])
             elif not self.light:
-                if self.orientation == "vertical":
-                    self.image1 = pygame.image.load("./images/lights/down/light-down-red.png")
-                    self.image2 = pygame.image.load("./images/lights/down/light-down-red.png")
-                elif self.orientation == "horizontal":
-                    self.image1 = pygame.image.load("./images/lights/left/light-left-red.png")
-                    self.image2 = pygame.image.load("./images/lights/right/light-right-red.png")
+                self.image1 = self.image
+                self.image1.fill([255, 0, 0])
+                self.image2 = self.image
+                self.image2.fill([255, 0, 0])
+        if action == "toggle-id" and self.id == mouse.id:
+            self.light = not self.light
+            print self.light
+            if self.light:
+                self.image1 = self.image
+                self.image1.fill([0, 255, 0])
+                self.image2 = self.image
+                self.image2.fill([0, 255, 0])
+            elif not self.light:
+                self.image1 = self.image
+                self.image1.fill([255, 0, 0])
+                self.image2 = self.image
+                self.image2.fill([255, 0, 0])
         if action == "draw":
             if self.orientation == "vertical":
                 screen.blit(self.image1, [self.rect.left, self.rect.top + 10])

@@ -22,6 +22,7 @@ roadgroup = pygame.sprite.Group()
 lightgroup = pygame.sprite.Group()
 intersectiongroup = pygame.sprite.Group()
 intersectiongroup = pygame.sprite.Group()
+buttongroup = pygame.sprite.Group()
 buildinggroup = pygame.sprite.Group()
 pygame.time.set_timer(pygame.USEREVENT, 100) #Acceleration
 pygame.time.set_timer(pygame.USEREVENT + 1, 2250) #Car Spawn
@@ -45,6 +46,7 @@ class trafficbutton(pygame.sprite.Sprite):
             update(lightgroup, "toggle-id")
             #YOU WERE WORKING ON THIS AND PUTTING ID'S ON TRAFFIC LIGHTS
 
+
 class mouseclass(pygame.sprite.Sprite):
     def __init__(self):
         pygame.sprite.Sprite.__init__(self)
@@ -59,9 +61,11 @@ class mouseclass(pygame.sprite.Sprite):
         self.score = 0
         self.id = None
         self.light = False
+        self.angry = pygame.sprite.Group()
     def move(self, x, y):
         self.rect.centerx, self.rect.centery = x, y
     def reset_stats(self):
+        self.angry = pygame.sprite.Group()
         self.objective = {}
         self.accident = False
         self.collidepoint = [0, 0]
@@ -415,13 +419,24 @@ def update(group, action):
     else:
         group.update(action)
 
+def getButtons(level):
+    buttons = pygame.sprite.Group()
+    if level == "freeplay":
+        buttons.add(trafficbutton([140, 140], 1))
+        buttons.add(trafficbutton([540, 140], 2))
+        buttons.add(trafficbutton([140, 340], 3))
+        buttons.add(trafficbutton([540, 340], 4))
+    return buttons
+
 def getLevel(level):
     global roadgroup, cargroup, lightgroup, intersectiongroup, buildinggroup, mouse
     roadgroup, cargroup, lightgroup, intersectiongroup, buildinggroup, mouse.objective = levels.level(level)
+    buttongroup = getButtons("freeplay")
 
 getLevel(0)
 
 while running:
+    print len(mouse.angry)
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
@@ -457,7 +472,10 @@ while running:
                     screen = "select"
             elif screen == "select":
                 if event.key == pygame.K_c:
-                    screen = "select level"
+                    #screen = "select level"
+                    screen = "game"
+                    level = 1
+                    getLevel(level)
                 if event.key == pygame.K_s:
                     screen = "game"
                     level = "survival"
@@ -620,7 +638,10 @@ while running:
             if screen == "select":
                 classic.click()
                 if classic.clicked:
-                    screen = "select level"
+                    #screen = "select level"
+                    screen = "game"
+                    level = 1
+                    getLevel(level)
                     classic.clicked = False
                 survival.click()
                 if survival.clicked:
@@ -666,12 +687,18 @@ while running:
                     else:
                         cargroup.add(entities.car(pos, i.orientation, dir, cargroup))
         if event.type == pygame.USEREVENT + 2:
+            update(cargroup, "wait")
             if screen == "game" and mouse.objective["time"] != "freeplay":
                 if mouse.objective["objective"] == "survival":
                     mouse.objective["time"] += 1
                 elif mouse.objective["objective"] != "survival":
                     if mouse.objective["time"] > 0:
-                        mouse.objective["time"] -= 1
+                        if len(mouse.angry) > 20:
+                            mouse.objective["time"] -= 4
+                        elif len(mouse.angry) > 10:
+                            mouse.objective["time"] -= 2
+                        else:
+                            mouse.objective["time"] -= 1
                 if mouse.objective["time"] <= 0:
                     if mouse.objective["objective"] == "cars":
                         screen = "game over"
@@ -696,6 +723,7 @@ while running:
         update(cargroup, "draw")
         update(lightgroup, "draw")
         night(night_setting[mouse.objective["tod"]])
+        buttongroup.draw(window)
         displayinfo()
         if mouse.objective["objective"] == "cars" and mouse.objective["amount"] <= 0:
             screen = "you win"

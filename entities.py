@@ -3,10 +3,12 @@ import pygame, random
 class car(pygame.sprite.Sprite):
     def __init__(self, pos, orientation, direction, group):
         pygame.sprite.Sprite.__init__(self)
-        self.color = random.choice(["red", "blue", "van", "taxi", "police"])
+        self.color = random.choice(["red", "blue", "van", "taxi", "police", "green"])
         imagefiles = ["./images/cars/" + self.color + "/car-left.png", None, "./images/cars/" + self.color + "/car-right.png"]
         imagefiles2 = ["./images/cars/" + self.color + "/car-up.png", None, "./images/cars/" + self.color + "/car-down.png"]
         self.headlightfiles = ["./images/cars/headlights/h1.png", "./images/cars/headlights/h2.png", "./images/cars/headlights/h3.png", "./images/cars/headlights/h4.png"]
+        self.frown = pygame.image.load("./images/frowny.png")
+        self.accident = pygame.image.load("./images/accident.png")
         self.imagev = pygame.surface.Surface([20, 40])
         self.imageh = pygame.surface.Surface([40, 20])
         self.imagevc = pygame.surface.Surface([20, 50])
@@ -26,6 +28,7 @@ class car(pygame.sprite.Sprite):
         self.crashed = False
         self.route = []
         self.direction = direction
+        self.time = 0
         if orientation == "vertical":
             self.image = pygame.image.load(imagefiles2[direction + 1])
             self.rect = self.rectv
@@ -172,12 +175,24 @@ class car(pygame.sprite.Sprite):
                     elif self.direction == -1:
                         screen.blit(self.headlight, [self.rect.left, self.rect.top - 15])
             screen.blit(self.image, [self.rect.left, self.rect.top])
+            if self.crashed:
+                screen.blit(self.accident, [self.rect.centerx - 10, self.rect.centery - 10])
+            if self.stopped and not self.crashed:
+                if self.time > 30:
+                    screen.blit(self.frown, [self.rect.centerx - 7, self.rect.centery - 7])
+                    if not self in mouse.angry:
+                        mouse.angry.add(self)
         if action == "stop":
             self.stop()
             self.stopped = True
         if action == "collidepoint":
             if (self.rect.left < 100 and self.rect.top == mouse.collidepoint[1]) or (self.rect.right > 700 and self.rect.top == mouse.collidepoint[1]) or (self.rect.top < 100 and self.rect.left == mouse.collidepoint[0]) or (self.rect.bottom > 500 and self.rect.left == mouse.collidepoint[0]):
                 mouse.collide = True
+        if action == "wait":
+            if self.stopped:
+                self.time += 1
+            if not self.stopped:
+                self.time = 0
 
 class bus(pygame.sprite.Sprite):
     def __init__(self, pos, orientation, direction, group):
@@ -186,6 +201,8 @@ class bus(pygame.sprite.Sprite):
         imagefiles = ["./images/cars/" + self.color + "/car-left.png", None, "./images/cars/" + self.color + "/car-right.png"]
         imagefiles2 = ["./images/cars/" + self.color + "/car-up.png", None, "./images/cars/" + self.color + "/car-down.png"]
         self.headlightfiles = ["./images/cars/headlights/h1.png", "./images/cars/headlights/h2.png", "./images/cars/headlights/h3.png", "./images/cars/headlights/h4.png"]
+        self.frown = pygame.image.load("./images/frowny.png")
+        self.accident = pygame.image.load("./images/accident.png")
         self.imagev = pygame.surface.Surface([20, 80])
         self.imageh = pygame.surface.Surface([80, 20])
         self.imagevc = pygame.surface.Surface([20, 90])
@@ -205,6 +222,7 @@ class bus(pygame.sprite.Sprite):
         self.crashed = False
         self.route = []
         self.direction = direction
+        self.time = 0
         if orientation == "vertical":
             self.image = pygame.image.load(imagefiles2[direction + 1])
             self.rect = self.rectv
@@ -351,9 +369,21 @@ class bus(pygame.sprite.Sprite):
                     elif self.direction == -1:
                         screen.blit(self.headlight, [self.rect.left, self.rect.top - 15])
             screen.blit(self.image, [self.rect.left, self.rect.top])
+            if self.crashed:
+                screen.blit(self.accident, [self.rect.centerx - 10, self.rect.centery - 10])
+            if self.stopped and not self.crashed:
+                if self.time > 30:
+                    screen.blit(self.frown, [self.rect.centerx - 7, self.rect.centery - 7])
+                    if not self in mouse.angry:
+                        mouse.angry.add(self)
         if action == "stop":
             self.stop()
             self.stopped = True
         if action == "collidepoint":
             if (self.rect.left < 100 and self.rect.top == mouse.collidepoint[1]) or (self.rect.right > 700 and self.rect.top == mouse.collidepoint[1]) or (self.rect.top < 100 and self.rect.left == mouse.collidepoint[0]) or (self.rect.bottom > 500 and self.rect.left == mouse.collidepoint[0]):
                 mouse.collide = True
+        if action == "wait":
+            if self.stopped:
+                self.time += 1
+            if not self.stopped:
+                self.time = 0
