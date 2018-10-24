@@ -293,11 +293,11 @@ def gameOverScreen():
     rect = 400 - text.get_rect().width / 2
     window.blit(text, [rect, 220])
     if mouse.objective["objective"] == "survival":
-        if len(str(mouse.objective["time"] % 60)) == 1:
-            text = font.render("time survived: " + str(int(math.floor(mouse.objective["time"] / 60))) + ":0" + str(
-                mouse.objective["time"] % 60), 1, [255, 255, 255])
+        if len(str(int(math.floor(mouse.objective["time"] % 60)))) == 1:
+            text = font.render("time survived: " + str(int(math.floor(mouse.objective["time"] / 60))) + ":0" + str(int(math.floor(
+                mouse.objective["time"] % 60))), 1, [255, 255, 255])
         else:
-            text = font.render("time survived: " + str(int(math.floor(mouse.objective["time"] / 60))) + ":" + str(mouse.objective["time"] % 60), 1, [255, 255, 255])
+            text = font.render("time survived: " + str(int(math.floor(mouse.objective["time"] / 60))) + ":" + str(int(math.floor(mouse.objective["time"] % 60))), 1, [255, 255, 255])
         rect = 400 - text.get_rect().width / 2
         window.blit(text, [rect, 240])
         menuButton.draw()
@@ -362,11 +362,11 @@ def displayinfo():
     window.blit(rect, [10, 502])
     font = pygame.font.Font("./resources/Danger on the Motorway.otf", 16)
     if mouse.objective["objective"] != "freeplay" and mouse.objective["objective"] != "survival":
-        if len(str(mouse.objective["time"] % 60)) == 1:
-            text = font.render("time left: " + str(int(math.floor(mouse.objective["time"] / 60))) + ":0" + str(
-                mouse.objective["time"] % 60), 1, [255, 255, 255])
+        if len(str(int(math.floor(mouse.objective["time"] % 60)))) == 1:
+            text = font.render("time left: " + str(int(math.floor(mouse.objective["time"] / 60))) + ":0" + str(int(math.floor(
+                mouse.objective["time"] % 60))), 1, [255, 255, 255])
         else:
-            text = font.render("time left: " + str(int(math.floor(mouse.objective["time"] / 60))) + ":" + str(mouse.objective["time"] % 60), 1, [255, 255, 255])
+            text = font.render("time left: " + str(int(math.floor(mouse.objective["time"] / 60))) + ":" + str(int(math.floor(mouse.objective["time"] % 60))), 1, [255, 255, 255])
         window.blit(text, [20, 560])
         if str(mouse.objective["objective"]) == "cars":
             text = font.render("level objective:", 1, [255, 255, 255])
@@ -684,7 +684,9 @@ while running:
                 if not mouse.collide:
                     if type == 0:
                         cargroup.add(entities.bus(pos, i.orientation, dir, cargroup))
-                    else:
+                    if type == 1:
+                        cargroup.add(entities.motorcycle(pos, i.orientation, dir, cargroup))
+                    elif type != 0 and type != 1:
                         cargroup.add(entities.car(pos, i.orientation, dir, cargroup))
         if event.type == pygame.USEREVENT + 2:
             update(cargroup, "wait")
@@ -692,13 +694,22 @@ while running:
                 if mouse.objective["objective"] == "survival":
                     mouse.objective["time"] += 1
                 elif mouse.objective["objective"] != "survival":
-                    if mouse.objective["time"] > 0:
-                        if len(mouse.angry) > 20:
-                            mouse.objective["time"] -= 4
-                        elif len(mouse.angry) > 10:
-                            mouse.objective["time"] -= 2
-                        else:
-                            mouse.objective["time"] -= 1
+                    if mouse.objective["objective"] == "cars":
+                        if mouse.objective["time"] > 0:
+                            if len(mouse.angry) > 20:
+                                mouse.objective["time"] -= 4
+                            elif len(mouse.angry) > 10:
+                                mouse.objective["time"] -= 2
+                            else:
+                                mouse.objective["time"] -= 1
+                    if mouse.objective["objective"] == "crashes":
+                        if mouse.objective["time"] > 0:
+                            if len(mouse.angry) > 20:
+                                mouse.objective["time"] -= 0.25
+                            elif len(mouse.angry) > 10:
+                                mouse.objective["time"] -= 0.5
+                            else:
+                                mouse.objective["time"] -= 1
                 if mouse.objective["time"] <= 0:
                     if mouse.objective["objective"] == "cars":
                         screen = "game over"
