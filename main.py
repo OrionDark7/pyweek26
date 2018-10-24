@@ -378,6 +378,12 @@ def displayinfo():
             window.blit(text, [20, 510])
             text = font.render("have less than " + str(int(math.floor(mouse.objective["amount"]))) + " accidents", 1, [255, 255, 255])
             window.blit(text, [20, 535])
+        if str(mouse.objective["objective"]) == "anger":
+            text = font.render("level objective:", 1, [255, 255, 255])
+            window.blit(text, [20, 510])
+            text = font.render("don't make " + str(int(math.floor(mouse.objective["amount"])) - len(mouse.angry)) + " drivers angry", 1,
+                               [255, 255, 255])
+            window.blit(text, [20, 535])
     elif mouse.objective["objective"] == "survival":
         text = font.render("cars passed: " + str(int(math.floor(mouse.score))), 1,
                            [255, 255, 255])
@@ -702,7 +708,7 @@ while running:
                                 mouse.objective["time"] -= 2
                             else:
                                 mouse.objective["time"] -= 1
-                    if mouse.objective["objective"] == "crashes":
+                    if mouse.objective["objective"] == "crashes" or mouse.objective["objective"] == "anger":
                         if mouse.objective["time"] > 0:
                             if len(mouse.angry) > 20:
                                 mouse.objective["time"] -= 0.25
@@ -714,7 +720,7 @@ while running:
                     if mouse.objective["objective"] == "cars":
                         screen = "game over"
                         update(cargroup, "stop")
-                    if mouse.objective["objective"] == "crashes":
+                    if mouse.objective["objective"] == "crashes" or mouse.objective["objective"] == "anger":
                         screen = "you win"
                         update(cargroup, "stop")
         if event.type == pygame.USEREVENT + 3 and screen == "game":
@@ -736,6 +742,9 @@ while running:
         night(night_setting[mouse.objective["tod"]])
         buttongroup.draw(window)
         displayinfo()
+        if mouse.objective["objective"] == "anger" and mouse.objective["amount"] - len(mouse.angry) <= 0:
+            screen = "game over"
+            update(cargroup, "stop")
         if mouse.objective["objective"] == "cars" and mouse.objective["amount"] <= 0:
             screen = "you win"
             update(cargroup, "stop")
