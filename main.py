@@ -65,6 +65,7 @@ class mouseclass(pygame.sprite.Sprite):
     def move(self, x, y):
         self.rect.centerx, self.rect.centery = x, y
     def reset_stats(self):
+        self.score = 0
         self.angry = pygame.sprite.Group()
         self.objective = {}
         self.accident = False
@@ -153,6 +154,18 @@ fullSwitch = switch([140, 58], False)
 classic = imagebutton("./images/ui/buttons/freeplay.png", [80, 240], False)
 survival = imagebutton("./images/ui/buttons/freeplay.png", [320, 240], False)
 freeplay = imagebutton("./images/ui/buttons/freeplay.png", [560, 240], False)
+level1 = imagebutton("./images/ui/buttons/level1.png", [32, 60], False)
+level2 = imagebutton("./images/ui/buttons/level2.png", [224, 60], False)
+level3 = imagebutton("./images/ui/buttons/level1.png", [416, 60], False)
+level4 = imagebutton("./images/ui/buttons/level2.png", [608, 60], False)
+level5 = imagebutton("./images/ui/buttons/level1.png", [32, 240], False)
+level6 = imagebutton("./images/ui/buttons/level2.png", [224, 240], False)
+level7 = imagebutton("./images/ui/buttons/level1.png", [416, 240], False)
+level8 = imagebutton("./images/ui/buttons/level2.png", [608, 240], False)
+level9 = imagebutton("./images/ui/buttons/level1.png", [32, 420], False)
+level10 = imagebutton("./images/ui/buttons/level2.png", [224, 420], False)
+level11 = imagebutton("./images/ui/buttons/level1.png", [416, 420], False)
+level12 = imagebutton("./images/ui/buttons/level2.png", [608, 420], False)
 
 def selectLevel():
     global window
@@ -162,18 +175,18 @@ def selectLevel():
     rect.set_alpha(200)
     window.blit(rect, [0, 0])
     backButton.draw()
-    window.blit(image, [32, 60])
-    window.blit(image, [224, 60])
-    window.blit(image, [416, 60])
-    window.blit(image, [608, 60])
-    window.blit(image, [32, 240])
-    window.blit(image, [224, 240])
-    window.blit(image, [416, 240])
-    window.blit(image, [608, 240])
-    window.blit(image, [32, 420])
-    window.blit(image, [224, 420])
-    window.blit(image, [416, 420])
-    window.blit(image, [608, 420])
+    level1.draw()
+    level2.draw()
+    level3.draw()
+    level4.draw()
+    level5.draw()
+    level6.draw()
+    level7.draw()
+    level8.draw()
+    level9.draw()
+    level10.draw()
+    level11.draw()
+    level12.draw()
 
 def selectScreen():
     global window
@@ -458,30 +471,35 @@ while running:
                     screen = "menu"
                     level = 0
                     getLevel(level)
+                    mouse.score = 0
                 if event.key == pygame.K_r:
                     getLevel(level)
                     screen = "game"
+                    mouse.score = 0
             if screen == "you win":
                 if event.key == pygame.K_m:
                     screen = "menu"
                     level = 0
                     getLevel(level)
+                    mouse.score = 0
                 if event.key == pygame.K_r:
                     getLevel(level)
                     screen = "game"
+                    mouse.score = 0
                 if event.key == pygame.K_n:
                     screen = "game"
                     level += 1
                     getLevel(level)
+                    mouse.score = 0
             if screen == "select level":
                 if event.key == pygame.K_b:
                     screen = "select"
             elif screen == "select":
                 if event.key == pygame.K_c:
-                    #screen = "select level"
-                    screen = "game"
-                    level = 1
-                    getLevel(level)
+                    screen = "select level"
+                    #screen = "game"
+                    #level = 1
+                    #getLevel(level)
                 if event.key == pygame.K_s:
                     screen = "game"
                     level = "survival"
@@ -530,146 +548,227 @@ while running:
                     level = 0
                     getLevel(level)
         if event.type == pygame.MOUSEBUTTONDOWN:
+            clicked = pygame.mouse.get_pressed()
             mouse.move(event.pos[0], event.pos[1])
-            if screen == "game":
-                update(cargroup, "kill")
-                update(lightgroup, "toggle")
-                if mouse.accident:
-                    closeButton.click()
-                    if closeButton.clicked:
-                        mouse.accident = False
-                        closeButton.clicked = False
-                    showButton.click()
-                    if showButton.clicked:
-                        show_me = True
-                        accidentpos = [mouse.accidentinfo[0] - 30, mouse.accidentinfo[1] - 80]
-                        showButton.clicked = False
-            if screen == "menu":
-                playButton.click()
-                if playButton.clicked:
-                    screen = "select"
-                    playButton.clicked = False
-                howButton.click()
-                if howButton.clicked:
-                    screen = "how"
-                    previous = "menu"
-                    howButton.clicked = False
-                settingsButton.click()
-                if settingsButton.clicked:
-                    screen = "settings"
-                    previous = "menu"
-                    settingsButton.clicked = False
-                quitButton.click()
-                if quitButton.clicked:
-                    running = False
-                    quitButton.clicked = False
-            if screen == "pause":
-                resumeButton.click()
-                if resumeButton.clicked:
-                    screen = "game"
-                    getLevel(level)
-                    resumeButton.clicked = False
-                howButton.click()
-                if howButton.clicked:
-                    screen = "how"
-                    previous = "pause"
-                    howButton.clicked = False
-                settingsButton.click()
-                if settingsButton.clicked:
-                    screen = "settings"
-                    previous = "pause"
-                    settingsButton.clicked = False
-                quitButton.click()
-                if quitButton.clicked:
-                    screen = "menu"
-                    level = 0
-                    getLevel(0)
-                    quitButton.clicked = False
-            if screen == "game over":
-                menuButton.click()
-                if menuButton.clicked:
-                    mouse.reset_stats()
-                    screen = "menu"
-                    level = 0
-                    getLevel(level)
-                    menuButton.clicked = False
-                replayButton.click()
-                if replayButton.clicked:
-                    mouse.reset_stats()
-                    getLevel(level)
-                    screen = "game"
-                    replayButton.clicked = False
-            if screen == "you win":
-                menuButton.click()
-                if menuButton.clicked:
-                    mouse.reset_stats()
-                    screen = "menu"
-                    level = 0
-                    getLevel(level)
-                    menuButton.clicked = False
-                replayButton.click()
-                if replayButton.clicked:
-                    mouse.reset_stats()
-                    getLevel(level)
-                    screen = "game"
-                    replayButton.clicked = False
-                nextLevelButton.click()
-                if nextLevelButton.clicked:
-                    level += 1
-                    getLevel(level)
-                    screen = "game"
-                    nextLevelButton.clicked = False
-            if screen == "settings":
-                backButton.click()
-                if backButton.clicked:
-                    screen = previous
-                    backButton.clicked = False
-                fullSwitch.toggle()
-                if fullSwitch.clicked:
-                    if fullSwitch.state:
-                        window = pygame.display.set_mode([800, 600], pygame.FULLSCREEN)
-                    else:
-                        window = pygame.display.set_mode([800, 600])
-                    fullSwitch.clicked = False
-            if screen == "how":
-                backButton.click()
-                if backButton.clicked:
-                    screen = previous
-                    backButton.clicked = False
-            if screen == "select level":
-                backButton.click()
-                if backButton.clicked:
-                    screen = "select"
-                    backButton.clicked = False
-            if screen == "select":
-                classic.click()
-                if classic.clicked:
-                    #screen = "select level"
-                    screen = "game"
-                    level = 1
-                    getLevel(level)
-                    classic.clicked = False
-                survival.click()
-                if survival.clicked:
-                    mouse.reset_stats()
-                    level = "survival"
-                    getLevel(level)
-                    screen = "game"
-                    survival.clicked = False
-                freeplay.click()
-                if freeplay.clicked:
-                    mouse.reset_stats()
-                    level = "freeplay"
-                    getLevel(level)
-                    screen = "game"
-                    freeplay.clicked = False
-                backButton.click()
-                if backButton.clicked:
-                    mouse.reset_stats()
-                    level = 0
-                    getLevel(level)
-                    screen = "menu"
-                    backButton.clicked = False
+            if clicked[0] == 1:
+                if screen == "game":
+                    update(lightgroup, "toggle")
+                    if mouse.accident:
+                        closeButton.click()
+                        if closeButton.clicked:
+                            mouse.accident = False
+                            closeButton.clicked = False
+                        showButton.click()
+                        if showButton.clicked:
+                            show_me = True
+                            accidentpos = [mouse.accidentinfo[0] - 30, mouse.accidentinfo[1] - 80]
+                            showButton.clicked = False
+                if screen == "menu":
+                    playButton.click()
+                    if playButton.clicked:
+                        screen = "select"
+                        playButton.clicked = False
+                    howButton.click()
+                    if howButton.clicked:
+                        screen = "how"
+                        previous = "menu"
+                        howButton.clicked = False
+                    settingsButton.click()
+                    if settingsButton.clicked:
+                        screen = "settings"
+                        previous = "menu"
+                        settingsButton.clicked = False
+                    quitButton.click()
+                    if quitButton.clicked:
+                        running = False
+                        quitButton.clicked = False
+                if screen == "pause":
+                    resumeButton.click()
+                    if resumeButton.clicked:
+                        screen = "game"
+                        resumeButton.clicked = False
+                    howButton.click()
+                    if howButton.clicked:
+                        screen = "how"
+                        previous = "pause"
+                        howButton.clicked = False
+                    settingsButton.click()
+                    if settingsButton.clicked:
+                        screen = "settings"
+                        previous = "pause"
+                        settingsButton.clicked = False
+                    quitButton.click()
+                    if quitButton.clicked:
+                        screen = "menu"
+                        level = 0
+                        getLevel(0)
+                        quitButton.clicked = False
+                if screen == "game over":
+                    menuButton.click()
+                    if menuButton.clicked:
+                        mouse.reset_stats()
+                        screen = "menu"
+                        level = 0
+                        getLevel(level)
+                        menuButton.clicked = False
+                        mouse.score = 0
+                    replayButton.click()
+                    if replayButton.clicked:
+                        mouse.reset_stats()
+                        getLevel(level)
+                        screen = "game"
+                        replayButton.clicked = False
+                        mouse.score = 0
+                if screen == "you win":
+                    menuButton.click()
+                    if menuButton.clicked:
+                        mouse.reset_stats()
+                        screen = "menu"
+                        level = 0
+                        getLevel(level)
+                        menuButton.clicked = False
+                        mouse.score = 0
+                    replayButton.click()
+                    if replayButton.clicked:
+                        mouse.reset_stats()
+                        getLevel(level)
+                        screen = "game"
+                        replayButton.clicked = False
+                        mouse.score = 0
+                    nextLevelButton.click()
+                    if nextLevelButton.clicked:
+                        level += 1
+                        getLevel(level)
+                        screen = "game"
+                        nextLevelButton.clicked = False
+                        mouse.score = 0
+                if screen == "settings":
+                    backButton.click()
+                    if backButton.clicked:
+                        screen = previous
+                        backButton.clicked = False
+                    fullSwitch.toggle()
+                    if fullSwitch.clicked:
+                        if fullSwitch.state:
+                            window = pygame.display.set_mode([800, 600], pygame.FULLSCREEN)
+                        else:
+                            window = pygame.display.set_mode([800, 600])
+                        fullSwitch.clicked = False
+                if screen == "how":
+                    backButton.click()
+                    if backButton.clicked:
+                        screen = previous
+                        backButton.clicked = False
+                if screen == "select level":
+                    backButton.click()
+                    if backButton.clicked:
+                        screen = "select"
+                        backButton.clicked = False
+                if screen == "select":
+                    classic.click()
+                    if classic.clicked:
+                        screen = "select level"
+                        #screen = "game"
+                        #level = 1
+                        #getLevel(level)
+                        classic.clicked = False
+                    survival.click()
+                    if survival.clicked:
+                        mouse.reset_stats()
+                        level = "survival"
+                        getLevel(level)
+                        screen = "game"
+                        survival.clicked = False
+                    freeplay.click()
+                    if freeplay.clicked:
+                        mouse.reset_stats()
+                        level = "freeplay"
+                        getLevel(level)
+                        screen = "game"
+                        freeplay.clicked = False
+                    backButton.click()
+                    if backButton.clicked:
+                        mouse.reset_stats()
+                        level = 0
+                        getLevel(level)
+                        screen = "menu"
+                        backButton.clicked = False
+                elif screen == "select level":
+                    level1.click()
+                    if level1.clicked:
+                        level = 1
+                        screen = "game"
+                        getLevel(level)
+                        level1.clicked = False
+                    level2.click()
+                    if level2.clicked:
+                        level = 2
+                        screen = "game"
+                        getLevel(level)
+                        level2.clicked = False
+                    level3.click()
+                    if level3.clicked:
+                        level = 3
+                        screen = "game"
+                        getLevel(level)
+                        level3.clicked = False
+                    level4.click()
+                    if level4.clicked:
+                        level = 4
+                        screen = "game"
+                        getLevel(level)
+                        level4.clicked = False
+                    level5.click()
+                    if level5.clicked:
+                        level = 2
+                        screen = "game"
+                        getLevel(level)
+                        level5.clicked = False
+                    level6.click()
+                    if level6.clicked:
+                        level = 2
+                        screen = "game"
+                        getLevel(level)
+                        level6.clicked = False
+                    level7.click()
+                    if level7.clicked:
+                        level = 1
+                        screen = "game"
+                        getLevel(level)
+                        level7.clicked = False
+                    level8.click()
+                    if level8.clicked:
+                        level = 2
+                        screen = "game"
+                        getLevel(level)
+                        level8.clicked = False
+                    level9.click()
+                    if level9.clicked:
+                        level = 2
+                        screen = "game"
+                        getLevel(level)
+                        level9.clicked = False
+                    level10.click()
+                    if level10.clicked:
+                        level = 2
+                        screen = "game"
+                        getLevel(level)
+                        level10.clicked = False
+                    level11.click()
+                    if level11.clicked:
+                        level = 2
+                        screen = "game"
+                        getLevel(level)
+                        level11.clicked = False
+                    level12.click()
+                    if level12.clicked:
+                        level = 2
+                        screen = "game"
+                        getLevel(level)
+                        level12.clicked = False
+            elif clicked[2] == 1:
+                if screen == "game":
+                    update(cargroup, "kill")
 
         if event.type == pygame.USEREVENT:
             update(cargroup, "accel")
