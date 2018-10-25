@@ -151,7 +151,7 @@ quitButton = button("[q] quit game", [20, 160], False)
 backButton = button("[b] back", [10, 10], False)
 resumeButton = button("[r] resume game", [20, 70], False)
 fullSwitch = switch([140, 58], False)
-classic = imagebutton("./images/ui/buttons/freeplay.png", [80, 240], False)
+classic = imagebutton("./images/ui/buttons/classic.png", [80, 240], False)
 survival = imagebutton("./images/ui/buttons/freeplay.png", [320, 240], False)
 freeplay = imagebutton("./images/ui/buttons/freeplay.png", [560, 240], False)
 level1 = imagebutton("./images/ui/buttons/level1.png", [32, 60], False)
@@ -175,6 +175,70 @@ def selectLevel():
     rect.set_alpha(200)
     window.blit(rect, [0, 0])
     backButton.draw()
+    font = pygame.font.Font("./resources/Danger on the Motorway.otf", 16)
+    text = font.render(
+        "level 1", 1,
+        [255, 255, 255])
+    rect = text.get_rect().width / 2
+    window.blit(text, [112 - rect, 185])
+    text = font.render(
+        "level 2", 1,
+        [255, 255, 255])
+    rect = text.get_rect().width / 2
+    window.blit(text, [304 - rect, 185])
+    text = font.render(
+        "level 3", 1,
+        [255, 255, 255])
+    rect = text.get_rect().width / 2
+    window.blit(text, [496 - rect, 185])
+    text = font.render(
+        "level 4", 1,
+        [255, 255, 255])
+    rect = text.get_rect().width / 2
+    window.blit(text, [688 - rect, 185])
+
+    text = font.render(
+        "level 5", 1,
+        [255, 255, 255])
+    rect = text.get_rect().width / 2
+    window.blit(text, [112 - rect, 365])
+    text = font.render(
+        "level 6", 1,
+        [255, 255, 255])
+    rect = text.get_rect().width / 2
+    window.blit(text, [304 - rect, 365])
+    text = font.render(
+        "level 7", 1,
+        [255, 255, 255])
+    rect = text.get_rect().width / 2
+    window.blit(text, [496 - rect, 365])
+    text = font.render(
+        "level 8", 1,
+        [255, 255, 255])
+    rect = text.get_rect().width / 2
+    window.blit(text, [688 - rect, 365])
+
+    text = font.render(
+        "level 9", 1,
+        [255, 255, 255])
+    rect = text.get_rect().width / 2
+    window.blit(text, [112 - rect, 545])
+    text = font.render(
+        "level 10", 1,
+        [255, 255, 255])
+    rect = text.get_rect().width / 2
+    window.blit(text, [304 - rect, 545])
+    text = font.render(
+        "level 11", 1,
+        [255, 255, 255])
+    rect = text.get_rect().width / 2
+    window.blit(text, [496 - rect, 545])
+    text = font.render(
+        "level 12", 1,
+        [255, 255, 255])
+    rect = text.get_rect().width / 2
+    window.blit(text, [688 - rect, 545])
+
     level1.draw()
     level2.draw()
     level3.draw()
@@ -720,49 +784,49 @@ while running:
                         level4.clicked = False
                     level5.click()
                     if level5.clicked:
-                        level = 2
+                        level = 5
                         screen = "game"
                         getLevel(level)
                         level5.clicked = False
                     level6.click()
                     if level6.clicked:
-                        level = 2
+                        level = 6
                         screen = "game"
                         getLevel(level)
                         level6.clicked = False
                     level7.click()
                     if level7.clicked:
-                        level = 1
+                        level = 7
                         screen = "game"
                         getLevel(level)
                         level7.clicked = False
                     level8.click()
                     if level8.clicked:
-                        level = 2
+                        level = 8
                         screen = "game"
                         getLevel(level)
                         level8.clicked = False
                     level9.click()
                     if level9.clicked:
-                        level = 2
+                        level = 9
                         screen = "game"
                         getLevel(level)
                         level9.clicked = False
                     level10.click()
                     if level10.clicked:
-                        level = 2
+                        level = 10
                         screen = "game"
                         getLevel(level)
                         level10.clicked = False
                     level11.click()
                     if level11.clicked:
-                        level = 2
+                        level = 11
                         screen = "game"
                         getLevel(level)
                         level11.clicked = False
                     level12.click()
                     if level12.clicked:
-                        level = 2
+                        level = 12
                         screen = "game"
                         getLevel(level)
                         level12.clicked = False

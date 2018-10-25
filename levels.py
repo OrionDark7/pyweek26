@@ -84,7 +84,7 @@ def level(level):
         intersections.add(intersection([170, 270]))
         intersections.add(intersection([570, 270]))
     if level == 4:
-        objectives = {"objective": "cars", "amount": 50, "time": 60, "tod": 14}
+        objectives = {"objective": "cars", "amount": 40, "time": 60, "tod": 14}
         roads.add(road([0, 120], "horizontal"))
         roads.add(road([0, 420], "horizontal"))
         roads.add(road([170, 0], "vertical"))
@@ -109,5 +109,16 @@ def level(level):
         lights.add(light([570, 400], "vertical", True, 2))
         lights.add(light([550, 420], "horizontal", True, 3))
         lights.add(light([550, 420], "horizontal", True, 4))
+    if level == 5:
+        objectives = {"objective": "crashes", "amount": 10, "time": 60, "tod": 16}
+        roads.add(road([0, 270], "horizontal"))
+        roads.add(road([300, 0], "vertical"))
+        roads.add(road([500, 0], "vertical"))
+        intersections.add(intersection([300, 270]))
+        intersections.add(intersection([500, 270]))
+        lights.add(light([300, 250], "vertical", True, 1))
+        lights.add(light([500, 250], "vertical", True, 2))
+        lights.add(light([280, 270], "horizontal", True, 3))
+        lights.add(light([480, 270], "horizontal", True, 4))
 
     return roads, cars, lights, intersections, buildings, objectives

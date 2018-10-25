@@ -193,6 +193,7 @@ class car(pygame.sprite.Sprite):
                 self.time += 1
             if not self.stopped:
                 self.time = 0
+                mouse.angry.remove(self)
 
 class motorcycle(pygame.sprite.Sprite):
     def __init__(self, pos, orientation, direction, group):
@@ -200,7 +201,7 @@ class motorcycle(pygame.sprite.Sprite):
         self.color = random.choice(["motorcycle-black", "motorcycle-red"])
         imagefiles = ["./images/cars/" + self.color + "/bike-left.png", None, "./images/cars/" + self.color + "/bike-right.png"]
         imagefiles2 = ["./images/cars/" + self.color + "/bike-up.png", None, "./images/cars/" + self.color + "/bike-down.png"]
-        self.headlightfiles = ["./images/cars/headlights/h1.png", "./images/cars/headlights/h2.png", "./images/cars/headlights/h3.png", "./images/cars/headlights/h4.png"]
+        self.headlightfiles = ["./images/cars/headlights/h1m.png", "./images/cars/headlights/h2m.png", "./images/cars/headlights/h3m.png", "./images/cars/headlights/h4m.png"]
         self.frown = pygame.image.load("./images/frowny.png")
         self.accident = pygame.image.load("./images/accident.png")
         self.imagev = pygame.surface.Surface([10, 29])
@@ -279,16 +280,16 @@ class motorcycle(pygame.sprite.Sprite):
                 self.acceleration = self.acceleration * 2
 
             if self.acceleration == 0:
-                self.acceleration = 1
+                self.acceleration = 0.5
 
         #speed = direction(speed + acceleration)
 
-        if self.speed < 6 and self.speed > -6:
+        if self.speed < 5 and self.speed > -5:
             self.speed = (self.speed + self.acceleration)
-        if self.speed > 6:
-            self.speed = 6
-        if self.speed < -6:
-            self.speed = -6
+        if self.speed > 5:
+            self.speed = 5
+        if self.speed < -5:
+            self.speed = -5
 
         #move car + speed
 
@@ -360,12 +361,12 @@ class motorcycle(pygame.sprite.Sprite):
             if mouse.objective["tod"] < 6 or mouse.objective["tod"] > 15 and not self.crashed:
                 if self.orientation == "h":
                     if self.direction == 1:
-                        screen.blit(self.headlight, [self.rect.left + 35, self.rect.top])
+                        screen.blit(self.headlight, [self.rect.left + 25, self.rect.top - 5])
                     elif self.direction == -1:
-                        screen.blit(self.headlight, [self.rect.left - 15 , self.rect.top])
+                        screen.blit(self.headlight, [self.rect.left - 15 , self.rect.top - 5])
                 elif self.orientation == "v":
                     if self.direction == 1:
-                        screen.blit(self.headlight, [self.rect.left, self.rect.top + 35])
+                        screen.blit(self.headlight, [self.rect.left, self.rect.top + 25])
                     elif self.direction == -1:
                         screen.blit(self.headlight, [self.rect.left, self.rect.top - 15])
             screen.blit(self.image, [self.rect.left, self.rect.top])
@@ -387,6 +388,7 @@ class motorcycle(pygame.sprite.Sprite):
                 self.time += 1
             if not self.stopped:
                 self.time = 0
+                mouse.angry.remove(self)
 
 class bus(pygame.sprite.Sprite):
     def __init__(self, pos, orientation, direction, group):
@@ -554,12 +556,12 @@ class bus(pygame.sprite.Sprite):
             if mouse.objective["tod"] < 6 or mouse.objective["tod"] > 15 and not self.crashed:
                 if self.orientation == "h":
                     if self.direction == 1:
-                        screen.blit(self.headlight, [self.rect.left + 35, self.rect.top])
+                        screen.blit(self.headlight, [self.rect.left + 75, self.rect.top])
                     elif self.direction == -1:
                         screen.blit(self.headlight, [self.rect.left - 15 , self.rect.top])
                 elif self.orientation == "v":
                     if self.direction == 1:
-                        screen.blit(self.headlight, [self.rect.left, self.rect.top + 35])
+                        screen.blit(self.headlight, [self.rect.left, self.rect.top + 75])
                     elif self.direction == -1:
                         screen.blit(self.headlight, [self.rect.left, self.rect.top - 15])
             screen.blit(self.image, [self.rect.left, self.rect.top])
@@ -581,3 +583,4 @@ class bus(pygame.sprite.Sprite):
                 self.time += 1
             if not self.stopped:
                 self.time = 0
+                mouse.angry.remove(self)
