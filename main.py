@@ -1,4 +1,4 @@
-import pygame, random, math
+import pygame, random, math, pickle
 from time import sleep
 import structures, entities, levels
 
@@ -9,6 +9,7 @@ window = pygame.display.set_mode([800, 600])
 window.fill([88, 198, 73])
 running = True
 show_me = False
+score = ""
 screen = "menu"
 previous = "menu"
 font = pygame.font.Font("./resources/Danger on the Motorway.otf", 16)
@@ -17,6 +18,14 @@ arrow = pygame.image.load("./images/arrow.png")
 night_ = pygame.surface.Surface([800, 600])
 night_setting = [200, 166, 133, 100, 66, 33, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 17, 33, 66, 100, 133, 166, 200, 217]
 accidentpos = [0, 0]
+
+scoreFile = open("./data/scores.dat", "rb")
+try:
+    highScores = pickle.load(scoreFile)
+except:
+    highScores = [0, 0, 0, 0, 0]
+scoreFile.close()
+
 level = 0
 page = 1
 cargroup = pygame.sprite.Group()
@@ -143,6 +152,7 @@ class switch(pygame.sprite.Sprite):
 mouse = mouseclass()
 menuButton = button("[m] menu", [400, 280], True)
 replayButton = button("[r] replay", [400, 300], True)
+scoreButton = button("[h] view highscores", [400, 320], True)
 nextLevelButton = button("[n] next level", [400, 320], True)
 closeButton = button("[c] close", [20, 45], False)
 showButton = button("[s] show me", [180, 45], False)
@@ -176,6 +186,13 @@ level9 = imagebutton("./images/ui/buttons/level9.png", [32, 420], False)
 level10 = imagebutton("./images/ui/buttons/level10.png", [224, 420], False)
 level11 = imagebutton("./images/ui/buttons/level11.png", [416, 420], False)
 level12 = imagebutton("./images/ui/buttons/level12.png", [608, 420], False)
+
+def readableTime(time):
+    if len(str(int(math.floor(time % 60)))) == 1:
+        newtime = str(int(math.floor(time / 60))) + ":0" + str(int(math.floor(time % 60)))
+    else:
+        newtime = str(int(math.floor(time / 60))) + ":" + str(int(math.floor(time % 60)))
+    return newtime
 
 def selectLevel():
     global window
@@ -553,6 +570,43 @@ def howPageScreen(screen):
         text = font.render("freeplay mode.", 1, [255, 255, 255])
         window.blit(text, [10, 290])
 
+def highScore():
+    global window
+    rect = pygame.surface.Surface([800, 600])
+    rect.fill([0, 0, 0])
+    rect.set_alpha(200)
+    window.blit(rect, [0, 0])
+
+    font = pygame.font.Font("./resources/Danger on the Motorway.otf", 32)
+    text = font.render(
+        "high score", 1,
+        [255, 255, 255])
+    rect = 400 - text.get_rect().width / 2
+    window.blit(text, [rect, 10])
+
+    font = pygame.font.Font("./resources/Danger on the Motorway.otf", 16)
+    text = font.render(
+        "1. " + readableTime(highScores[0]), 1,
+        [255, 255, 255])
+    window.blit(text, [10, 70])
+    text = font.render(
+        "2. " + readableTime(highScores[1]), 1,
+        [255, 255, 255])
+    window.blit(text, [10, 100])
+    text = font.render(
+        "3. " + readableTime(highScores[2]), 1,
+        [255, 255, 255])
+    window.blit(text, [10, 130])
+    text = font.render(
+        "4. " + readableTime(highScores[3]), 1,
+        [255, 255, 255])
+    window.blit(text, [10, 160])
+    text = font.render(
+        "5. " + readableTime(highScores[4]), 1,
+        [255, 255, 255])
+    window.blit(text, [10, 190])
+    backButton.draw()
+
 def settingsScreen():
     global window
     rect = pygame.surface.Surface([800, 600])
@@ -625,6 +679,8 @@ def gameOverScreen():
         window.blit(text, [rect, 240])
         menuButton.draw()
         replayButton.draw()
+    if mouse.objective["objective"] == "survival":
+        scoreButton.draw()
 
 def winScreen():
     global window
@@ -946,6 +1002,10 @@ while running:
                         screen = "intro"
                         replayButton.clicked = False
                         mouse.score = 0
+                    scoreButton.click()
+                    if scoreButton.clicked:
+                        screen = "high score"
+                        scoreButton.clicked = False
                 if screen == "you win":
                     menuButton.click()
                     if menuButton.clicked:
@@ -1025,6 +1085,11 @@ while running:
                     backButton.click()
                     if backButton.clicked:
                         screen = "select"
+                        backButton.clicked = False
+                if screen == "high score":
+                    backButton.click()
+                    if backButton.clicked:
+                        screen = "game over"
                         backButton.clicked = False
                 if screen == "select":
                     classic.click()
@@ -1217,6 +1282,33 @@ while running:
             if mouse.objective["objective"] == "survival":
                 screen = "game over"
                 update(cargroup, "stop")
+                score = mouse.objective["time"]
+                if score > highScores[0]:
+                    highScores[4] = highScores[3]
+                    highScores[3] = highScores[2]
+                    highScores[2] = highScores[1]
+                    highScores[1] = highScores[0]
+                    highScores[0] = score
+                elif score > highScores[1]:
+                    highScores[4] = highScores[3]
+                    highScores[3] = highScores[2]
+                    highScores[2] = highScores[1]
+                    highScores[1] = score
+                elif score > highScores[2]:
+                    highScores[4] = highScores[3]
+                    highScores[3] = highScores[2]
+                    highScores[2] = score
+                elif score > highScores[3]:
+                    highScores[4] = highScores[3]
+                    highScores[3] = score
+                elif score > highScores[4]:
+                    highScores[4] = score
+                if len(str(int(math.floor(mouse.objective["time"] % 60)))) == 1:
+                    score = str(int(math.floor(mouse.objective["time"] / 60))) + ":0" + str(int(math.floor(
+                            mouse.objective["time"] % 60)))
+                else:
+                    score = str(int(math.floor(mouse.objective["time"] / 60))) + ":" + str(
+                        int(math.floor(mouse.objective["time"] % 60)))
             else:
                 accidentNotification()
 
@@ -1264,6 +1356,7 @@ while running:
         background()
         settingsScreen()
 
+
     if screen == "pause":
         background()
         roadgroup.draw(window)
@@ -1295,6 +1388,14 @@ while running:
         intro()
         screen = "game"
 
+    if screen == "high score":
+        background()
+        highScore()
+
     pygame.display.flip()
+
+scoreFile = open("./data/scores.dat", "wb")
+pickle.dump(highScores, scoreFile)
+scoreFile.close()
 
 pygame.quit()
