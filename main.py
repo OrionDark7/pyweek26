@@ -1,4 +1,5 @@
 import pygame, random, math
+from time import sleep
 import structures, entities, levels
 
 #Copyright Orion Williams 2018
@@ -150,7 +151,7 @@ howButton = button("[h] how to play", [20, 100], False)
 settingsButton = button("[s] settings", [20, 130], False)
 quitButton = button("[q] quit game", [20, 160], False)
 backButton = button("[b] back", [10, 10], False)
-resumeButton = button("[r] resume game", [20, 90], False)
+resumeButton = button("[r] resume game", [20, 70], False)
 goalButton = button("[1] goal of the game", [10, 110], False)
 exampleButton = button("[2] examples of level tasks", [10, 130], False)
 controlButton = button("[3] controls", [10, 150], False)
@@ -165,16 +166,16 @@ survival = imagebutton("./images/ui/buttons/freeplay.png", [320, 240], False)
 freeplay = imagebutton("./images/ui/buttons/freeplay.png", [560, 240], False)
 level1 = imagebutton("./images/ui/buttons/level1.png", [32, 60], False)
 level2 = imagebutton("./images/ui/buttons/level2.png", [224, 60], False)
-level3 = imagebutton("./images/ui/buttons/level1.png", [416, 60], False)
-level4 = imagebutton("./images/ui/buttons/level2.png", [608, 60], False)
-level5 = imagebutton("./images/ui/buttons/level1.png", [32, 240], False)
-level6 = imagebutton("./images/ui/buttons/level2.png", [224, 240], False)
-level7 = imagebutton("./images/ui/buttons/level1.png", [416, 240], False)
-level8 = imagebutton("./images/ui/buttons/level2.png", [608, 240], False)
-level9 = imagebutton("./images/ui/buttons/level1.png", [32, 420], False)
-level10 = imagebutton("./images/ui/buttons/level2.png", [224, 420], False)
-level11 = imagebutton("./images/ui/buttons/level1.png", [416, 420], False)
-level12 = imagebutton("./images/ui/buttons/level2.png", [608, 420], False)
+level3 = imagebutton("./images/ui/buttons/level3.png", [416, 60], False)
+level4 = imagebutton("./images/ui/buttons/level4.png", [608, 60], False)
+level5 = imagebutton("./images/ui/buttons/level5.png", [32, 240], False)
+level6 = imagebutton("./images/ui/buttons/level6.png", [224, 240], False)
+level7 = imagebutton("./images/ui/buttons/level7.png", [416, 240], False)
+level8 = imagebutton("./images/ui/buttons/level8.png", [608, 240], False)
+level9 = imagebutton("./images/ui/buttons/level9.png", [32, 420], False)
+level10 = imagebutton("./images/ui/buttons/level10.png", [224, 420], False)
+level11 = imagebutton("./images/ui/buttons/level11.png", [416, 420], False)
+level12 = imagebutton("./images/ui/buttons/level12.png", [608, 420], False)
 
 def selectLevel():
     global window
@@ -260,6 +261,55 @@ def selectLevel():
     level10.draw()
     level11.draw()
     level12.draw()
+
+def intro():
+    global mouse, level, sleep
+    window.fill([0, 0, 0])
+
+    pygame.time.set_timer(pygame.USEREVENT + 1, 10000)
+
+    pygame.display.flip()
+    sleep(2)
+
+    font = pygame.font.Font("./resources/Danger on the Motorway.otf", 32)
+
+    text = font.render(
+        "level " + str(level), 1,
+        [255, 255, 255])
+    rect = text.get_rect().width / 2
+    window.blit(text, [400 - rect, 185])
+    pygame.display.flip()
+
+    font = pygame.font.Font("./resources/Danger on the Motorway.otf", 16)
+
+    sleep(2)
+
+    if mouse.objective["objective"] == "cars":
+        text = font.render(
+            "level objective: get " + str(mouse.objective["amount"]) + " cars through the level", 1,
+            [255, 255, 255])
+        rect = text.get_rect().width / 2
+        window.blit(text, [400 - rect, 230])
+    elif mouse.objective["objective"] == "crashes":
+        text = font.render(
+            "level objective: avoid " + str(mouse.objective["amount"]) + " crashes until the time runs out", 1,
+            [255, 255, 255])
+        rect = text.get_rect().width / 2
+        window.blit(text, [400 - rect, 230])
+    elif mouse.objective["objective"] == "anger":
+        text = font.render(
+            "level objective: have less than " + str(mouse.objective["amount"]) + " angry drivers", 1,
+            [255, 255, 255])
+        rect = text.get_rect().width / 2
+        window.blit(text, [400 - rect, 230])
+        text = font.render(
+            "until the time runs out", 1,
+            [255, 255, 255])
+        rect = text.get_rect().width / 2
+        window.blit(text, [400 - rect, 250])
+    pygame.display.flip()
+
+    sleep(5)
 
 def selectScreen():
     global window
@@ -390,12 +440,15 @@ def howPageScreen(screen):
         rect = 400 - text.get_rect().width / 2
         window.blit(text, [rect, 10])
 
-        text = font.render("left click: toggle traffic lights", 1, [255, 255, 255])
+        text = font.render("left click: toggle traffic lights [1]", 1, [255, 255, 255])
         window.blit(text, [10, 70])
-        text = font.render("right click: clear crashed cars", 1, [255, 255, 255])
+        text = font.render("right click: clear crashed cars [2]", 1, [255, 255, 255])
         window.blit(text, [10, 110])
-        text = font.render("escape key: pause game", 1, [255, 255, 255])
+        text = font.render("escape key: pause game [3]", 1, [255, 255, 255])
         window.blit(text, [10, 150])
+
+        image = pygame.image.load("./images/ui/how-to/controls.png")
+        window.blit(image, [500, 70])
 
     elif screen == 4:
         text = fontbig.render(
@@ -429,6 +482,14 @@ def howPageScreen(screen):
         text = font.render("by restoring the flow of traffic in front of them.", 1, [255, 255, 255])
         window.blit(text, [10, 310])
 
+        image = pygame.image.load("./images/ui/how-to/traffic lights.png")
+        window.blit(image, [80, 400])
+
+        image = pygame.image.load("./images/ui/how-to/accident.png")
+        window.blit(image, [320, 400])
+
+        image = pygame.image.load("./images/ui/how-to/angry drivers.png")
+        window.blit(image, [540, 400])
     elif screen == 5:
         text = fontbig.render(
             "cars", 1,
@@ -444,15 +505,24 @@ def howPageScreen(screen):
         text = font.render("up some space.", 1, [255, 255, 255])
         window.blit(text, [10, 130])
 
+        image = pygame.image.load("./images/cars/red/car-right.png")
+        window.blit(image, [10, 150])
+
         text = font.render("buses: buses drive at slow speeds and take up twice as much", 1, [255, 255, 255])
         window.blit(text, [10, 190])
         text = font.render("space as normal cars.", 1, [255, 255, 255])
         window.blit(text, [10, 210])
 
+        image = pygame.image.load("./images/cars/transit/car-right.png")
+        window.blit(image, [10, 230])
+
         text = font.render("motorcycles: motorcycles drive at relatively fast speeds and", 1, [255, 255, 255])
         window.blit(text, [10, 270])
         text = font.render("take up little space.", 1, [255, 255, 255])
         window.blit(text, [10, 290])
+
+        image = pygame.image.load("./images/cars/motorcycle-red/bike-right.png")
+        window.blit(image, [10, 310])
 
     elif screen == 6:
         text = fontbig.render(
@@ -581,7 +651,8 @@ def winScreen():
     window.blit(text, [rect, 240])
     menuButton.draw()
     replayButton.draw()
-    nextLevelButton.draw()
+    if level < 12:
+        nextLevelButton.draw()
 
 def accidentNotification():
     global mouse, window, show_me, arrow, accidentpos
@@ -721,44 +792,47 @@ while running:
                     screen = "how"
             if screen == "game over":
                 if event.key == pygame.K_m:
-                    screen = "menu"
+                    screen = "select level"
                     level = 0
                     getLevel(level)
                     mouse.score = 0
                 if event.key == pygame.K_r:
                     getLevel(level)
-                    screen = "game"
+                    screen = "intro"
                     mouse.score = 0
             if screen == "you win":
                 if event.key == pygame.K_m:
-                    screen = "menu"
+                    screen = "select level"
                     level = 0
                     getLevel(level)
                     mouse.score = 0
+                    mouse.angry = pygame.sprite.Group()
                 if event.key == pygame.K_r:
                     getLevel(level)
-                    screen = "game"
+                    screen = "intro"
                     mouse.score = 0
-                if event.key == pygame.K_n:
-                    screen = "game"
+                    mouse.angry = pygame.sprite.Group
+                if event.key == pygame.K_n and level < 12:
+                    screen = "intro"
                     level += 1
                     getLevel(level)
                     mouse.score = 0
+                    mouse.angry = pygame.sprite.Group
             if screen == "select level":
                 if event.key == pygame.K_b:
                     screen = "select"
             elif screen == "select":
                 if event.key == pygame.K_c:
                     screen = "select level"
-                    #screen = "game"
+                    #screen = "intro"
                     #level = 1
                     #getLevel(level)
                 if event.key == pygame.K_s:
-                    screen = "game"
+                    screen = "intro"
                     level = "survival"
                     getLevel(level)
                 if event.key == pygame.K_f:
-                    screen = "game"
+                    screen = "intro"
                     level = "freeplay"
                     getLevel(level)
                 if event.key == pygame.K_b:
@@ -838,7 +912,7 @@ while running:
                 if screen == "pause":
                     resumeButton.click()
                     if resumeButton.clicked:
-                        screen = "game"
+                        screen = "pause"
                         resumeButton.clicked = False
                     howButton.click()
                     if howButton.clicked:
@@ -860,7 +934,7 @@ while running:
                     menuButton.click()
                     if menuButton.clicked:
                         mouse.reset_stats()
-                        screen = "menu"
+                        screen = "select level"
                         level = 0
                         getLevel(level)
                         menuButton.clicked = False
@@ -869,14 +943,14 @@ while running:
                     if replayButton.clicked:
                         mouse.reset_stats()
                         getLevel(level)
-                        screen = "game"
+                        screen = "intro"
                         replayButton.clicked = False
                         mouse.score = 0
                 if screen == "you win":
                     menuButton.click()
                     if menuButton.clicked:
                         mouse.reset_stats()
-                        screen = "menu"
+                        screen = "select level"
                         level = 0
                         getLevel(level)
                         menuButton.clicked = False
@@ -885,14 +959,14 @@ while running:
                     if replayButton.clicked:
                         mouse.reset_stats()
                         getLevel(level)
-                        screen = "game"
+                        screen = "intro"
                         replayButton.clicked = False
                         mouse.score = 0
                     nextLevelButton.click()
-                    if nextLevelButton.clicked:
+                    if nextLevelButton.clicked and level < 12:
                         level += 1
                         getLevel(level)
-                        screen = "game"
+                        screen = "intro"
                         nextLevelButton.clicked = False
                         mouse.score = 0
                 if screen == "settings":
@@ -956,7 +1030,7 @@ while running:
                     classic.click()
                     if classic.clicked:
                         screen = "select level"
-                        #screen = "game"
+                        #screen = "intro"
                         #level = 1
                         #getLevel(level)
                         classic.clicked = False
@@ -965,14 +1039,14 @@ while running:
                         mouse.reset_stats()
                         level = "survival"
                         getLevel(level)
-                        screen = "game"
+                        screen = "intro"
                         survival.clicked = False
                     freeplay.click()
                     if freeplay.clicked:
                         mouse.reset_stats()
                         level = "freeplay"
                         getLevel(level)
-                        screen = "game"
+                        screen = "intro"
                         freeplay.clicked = False
                     backButton.click()
                     if backButton.clicked:
@@ -985,73 +1059,73 @@ while running:
                     level1.click()
                     if level1.clicked:
                         level = 1
-                        screen = "game"
+                        screen = "intro"
                         getLevel(level)
                         level1.clicked = False
                     level2.click()
                     if level2.clicked:
                         level = 2
-                        screen = "game"
+                        screen = "intro"
                         getLevel(level)
                         level2.clicked = False
                     level3.click()
                     if level3.clicked:
                         level = 3
-                        screen = "game"
+                        screen = "intro"
                         getLevel(level)
                         level3.clicked = False
                     level4.click()
                     if level4.clicked:
                         level = 4
-                        screen = "game"
+                        screen = "intro"
                         getLevel(level)
                         level4.clicked = False
                     level5.click()
                     if level5.clicked:
                         level = 5
-                        screen = "game"
+                        screen = "intro"
                         getLevel(level)
                         level5.clicked = False
                     level6.click()
                     if level6.clicked:
                         level = 6
-                        screen = "game"
+                        screen = "intro"
                         getLevel(level)
                         level6.clicked = False
                     level7.click()
                     if level7.clicked:
                         level = 7
-                        screen = "game"
+                        screen = "intro"
                         getLevel(level)
                         level7.clicked = False
                     level8.click()
                     if level8.clicked:
                         level = 8
-                        screen = "game"
+                        screen = "intro"
                         getLevel(level)
                         level8.clicked = False
                     level9.click()
                     if level9.clicked:
                         level = 9
-                        screen = "game"
+                        screen = "intro"
                         getLevel(level)
                         level9.clicked = False
                     level10.click()
                     if level10.clicked:
                         level = 10
-                        screen = "game"
+                        screen = "intro"
                         getLevel(level)
                         level10.clicked = False
                     level11.click()
                     if level11.clicked:
                         level = 11
-                        screen = "game"
+                        screen = "intro"
                         getLevel(level)
                         level11.clicked = False
                     level12.click()
                     if level12.clicked:
                         level = 12
-                        screen = "game"
+                        screen = "intro"
                         getLevel(level)
                         level12.clicked = False
             elif clicked[2] == 1:
@@ -1061,6 +1135,7 @@ while running:
         if event.type == pygame.USEREVENT:
             update(cargroup, "accel")
         if event.type == pygame.USEREVENT + 1 and screen == "game" or screen == "menu":
+            pygame.time.set_timer(pygame.USEREVENT + 1, 2250)
             for i in roadgroup:
                 orientation = i.orientation
                 direction = random.choice([0, 1])
@@ -1196,6 +1271,7 @@ while running:
         buildinggroup.draw(window)
         update(cargroup, "draw")
         update(lightgroup, "draw")
+        night(night_setting[mouse.objective["tod"]])
         pauseScreen()
 
     if screen == "select":
@@ -1213,6 +1289,11 @@ while running:
     if screen == "select level":
         background()
         selectLevel()
+
+    if screen == "intro":
+        window.fill([0, 0, 0])
+        intro()
+        screen = "game"
 
     pygame.display.flip()
 

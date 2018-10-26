@@ -110,7 +110,7 @@ def level(level):
         lights.add(light([550, 420], "horizontal", False, 3))
         lights.add(light([550, 420], "horizontal", False, 4))
     if level == 5:
-        objectives = {"objective": "crashes", "amount": 10, "time": 60, "tod": 15}
+        objectives = {"objective": "crashes", "amount": 15, "time": 45, "tod": 15}
         roads.add(road([0, 270], "horizontal"))
         roads.add(road([300, 0], "vertical"))
         roads.add(road([500, 0], "vertical"))
@@ -121,7 +121,7 @@ def level(level):
         lights.add(light([280, 270], "horizontal", False, 3))
         lights.add(light([480, 270], "horizontal", False, 4))
     if level == 6:
-        objectives = {"objective": "crashes", "amount": 10, "time": 90, "tod": 16}
+        objectives = {"objective": "crashes", "amount": 12, "time": 60, "tod": 16}
         roads.add(road([370, 0], "vertical"))
         roads.add(road([0, 180], "horizontal"))
         roads.add(road([0, 360], "horizontal"))
@@ -130,7 +130,7 @@ def level(level):
         lights.add(light([350, 180], "horizontal", False, 3))
         lights.add(light([350, 360], "horizontal", False, 4))
     if level == 7:
-        objectives = {"objective": "crashes", "amount": 7, "time": 120, "tod": 17}
+        objectives = {"objective": "crashes", "amount": 10, "time": 90, "tod": 17}
         roads.add(road([370, 0], "vertical"))
         roads.add(road([550, 0], "vertical"))
         roads.add(road([150, 0], "vertical"))
@@ -144,7 +144,7 @@ def level(level):
         lights.add(light([550, 250], "vertical", False, 4))
         lights.add(light([150, 250], "vertical", False, 4))
     if level == 8:
-        objectives = {"objective": "crashes", "amount": 5, "time": 180, "tod": 19}
+        objectives = {"objective": "crashes", "amount": 7, "time": 120, "tod": 19}
         roads.add(road([180, 0], "vertical"))
         roads.add(road([540, 0], "vertical"))
         roads.add(road([0, 180], "horizontal"))
@@ -157,8 +157,34 @@ def level(level):
         lights.add(light([520, 180], "horizontal", False, 4))
         lights.add(light([160, 360], "horizontal", False, 4))
         lights.add(light([520, 360], "horizontal", False, 4))
+    if level == 9:
+        objectives = {"objective": "anger", "amount": 20, "time": 120, "tod": 22}
+        roads.add(road([370, 0], "vertical"))
+        roads.add(road([180, 0], "vertical"))
+        roads.add(road([540, 0], "vertical"))
+        roads.add(road([0, 180], "horizontal"))
+        roads.add(road([0, 360], "horizontal"))
+        intersections.add(intersection([180, 180]))
+        intersections.add(intersection([370, 180]))
+        intersections.add(intersection([540, 180]))
+        intersections.add(intersection([540, 360]))
+        intersections.add(intersection([180, 360]))
+        intersections.add(intersection([370, 360]))
+        lights.add(light([160, 180], "horizontal", False, 3))
+        lights.add(light([350, 180], "horizontal", False, 4))
+        lights.add(light([520, 180], "horizontal", False, 4))
+        lights.add(light([160, 360], "horizontal", False, 4))
+        lights.add(light([350, 360], "horizontal", False, 3))
+        lights.add(light([520, 360], "horizontal", False, 4))
+
+        lights.add(light([180, 160], "vertical", False, 3))
+        lights.add(light([370, 160], "vertical", False, 4))
+        lights.add(light([540, 160], "vertical", False, 4))
+        lights.add(light([180, 340], "vertical", False, 4))
+        lights.add(light([370, 340], "vertical", False, 3))
+        lights.add(light([540, 340], "vertical", False, 4))
     if level == 10:
-        objectives = {"objective": "anger", "amount": 10, "time": 150, "tod": 0}
+        objectives = {"objective": "anger", "amount": 8, "time": 150, "tod": 0}
         roads.add(road([180, 0], "vertical"))
         roads.add(road([300, 0], "vertical"))
         roads.add(road([420, 0], "vertical"))
@@ -173,5 +199,91 @@ def level(level):
         intersections.add(intersection([300, 360]))
         intersections.add(intersection([420, 360]))
         intersections.add(intersection([540, 360]))
+
+        lights.add(light([180, 160], "vertical", False, 3))
+        lights.add(light([300, 160], "vertical", False, 4))
+        lights.add(light([420, 160], "vertical", False, 3))
+        lights.add(light([540, 160], "vertical", False, 4))
+        lights.add(light([180, 340], "vertical", False, 3))
+        lights.add(light([300, 340], "vertical", False, 4))
+        lights.add(light([420, 340], "vertical", False, 3))
+        lights.add(light([540, 340], "vertical", False, 4))
+
+        lights.add(light([160, 180], "horizontal", False, 3))
+        lights.add(light([280, 180], "horizontal", False, 4))
+        lights.add(light([400, 180], "horizontal", False, 3))
+        lights.add(light([520, 180], "horizontal", False, 4))
+        lights.add(light([160, 360], "horizontal", False, 3))
+        lights.add(light([280, 360], "horizontal", False, 4))
+        lights.add(light([400, 360], "horizontal", False, 3))
+        lights.add(light([520, 360], "horizontal", False, 4))
+    if level == 11:
+        objectives = {"objective": "anger", "amount": 10, "time": 180, "tod": 2}
+        roads.add(road([180, 0], "vertical"))
+        roads.add(road([300, 0], "vertical"))
+        roads.add(road([420, 0], "vertical"))
+        roads.add(road([540, 0], "vertical"))
+        roads.add(road([0, 180], "horizontal"))
+        roads.add(road([0, 360], "horizontal"))
+        intersections.add(intersection([180, 180]))
+        intersections.add(intersection([300, 180]))
+        intersections.add(intersection([420, 180]))
+        intersections.add(intersection([540, 180]))
+        intersections.add(intersection([180, 360]))
+        intersections.add(intersection([300, 360]))
+        intersections.add(intersection([420, 360]))
+        intersections.add(intersection([540, 360]))
+
+        lights.add(light([180, 160], "vertical", False, 3))
+        lights.add(light([300, 160], "vertical", False, 4))
+        lights.add(light([420, 160], "vertical", False, 3))
+        lights.add(light([540, 160], "vertical", False, 4))
+        lights.add(light([180, 340], "vertical", False, 3))
+        lights.add(light([300, 340], "vertical", False, 4))
+        lights.add(light([420, 340], "vertical", False, 3))
+        lights.add(light([540, 340], "vertical", False, 4))
+
+        lights.add(light([160, 180], "horizontal", False, 3))
+        lights.add(light([400, 180], "horizontal", False, 3))
+        lights.add(light([280, 360], "horizontal", False, 4))
+        lights.add(light([520, 360], "horizontal", False, 4))
+    if level == 12:
+        objectives = {"objective": "anger", "amount": 5, "time": 210, "tod": 5}
+        roads.add(road([170, 0], "vertical"))
+        roads.add(road([370, 0], "vertical"))
+        roads.add(road([570, 0], "vertical"))
+        roads.add(road([0, 120], "horizontal"))
+        roads.add(road([0, 270], "horizontal"))
+        roads.add(road([0, 420], "horizontal"))
+
+        intersections.add(intersection([170, 120]))
+        intersections.add(intersection([370, 270]))
+        intersections.add(intersection([570, 420]))
+        intersections.add(intersection([170, 270]))
+        intersections.add(intersection([370, 420]))
+        intersections.add(intersection([570, 120]))
+        intersections.add(intersection([170, 420]))
+        intersections.add(intersection([370, 120]))
+        intersections.add(intersection([570, 270]))
+
+        lights.add(light([170, 100], "vertical", False, 3))
+        lights.add(light([370, 250], "vertical", False, 4))
+        lights.add(light([570, 400], "vertical", False, 3))
+        lights.add(light([170, 250], "vertical", False, 4))
+        lights.add(light([370, 400], "vertical", False, 3))
+        lights.add(light([570, 100], "vertical", False, 4))
+        lights.add(light([170, 400], "vertical", False, 3))
+        lights.add(light([370, 100], "vertical", False, 4))
+        lights.add(light([570, 250], "vertical", False, 4))
+
+        lights.add(light([150, 120], "horizontal", False, 3))
+        lights.add(light([350, 270], "horizontal", False, 4))
+        lights.add(light([550, 420], "horizontal", False, 3))
+        lights.add(light([150, 270], "horizontal", False, 4))
+        lights.add(light([350, 420], "horizontal", False, 3))
+        lights.add(light([550, 120], "horizontal", False, 4))
+        lights.add(light([150, 420], "horizontal", False, 3))
+        lights.add(light([350, 120], "horizontal", False, 4))
+        lights.add(light([550, 270], "horizontal", False, 4))
 
     return roads, cars, lights, intersections, buildings, objectives
