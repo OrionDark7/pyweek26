@@ -17,6 +17,7 @@ night_ = pygame.surface.Surface([800, 600])
 night_setting = [200, 166, 133, 100, 66, 33, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 17, 33, 66, 100, 133, 166, 200, 217]
 accidentpos = [0, 0]
 level = 0
+page = 1
 cargroup = pygame.sprite.Group()
 roadgroup = pygame.sprite.Group()
 lightgroup = pygame.sprite.Group()
@@ -149,8 +150,16 @@ howButton = button("[h] how to play", [20, 100], False)
 settingsButton = button("[s] settings", [20, 130], False)
 quitButton = button("[q] quit game", [20, 160], False)
 backButton = button("[b] back", [10, 10], False)
-resumeButton = button("[r] resume game", [20, 70], False)
+resumeButton = button("[r] resume game", [20, 90], False)
+goalButton = button("[1] goal of the game", [10, 110], False)
+exampleButton = button("[2] examples of level tasks", [10, 130], False)
+controlButton = button("[3] controls", [10, 150], False)
+mechanicsButton = button("[4] game mechanics", [10, 170], False)
+carButton = button("[5] cars", [10, 190], False)
+gamemodesButton = button("[6] gamemodes", [10, 210], False)
+
 fullSwitch = switch([140, 58], False)
+
 classic = imagebutton("./images/ui/buttons/classic.png", [80, 240], False)
 survival = imagebutton("./images/ui/buttons/freeplay.png", [320, 240], False)
 freeplay = imagebutton("./images/ui/buttons/freeplay.png", [560, 240], False)
@@ -313,7 +322,166 @@ def howScreen():
         [255, 255, 255])
     rect = 400 - text.get_rect().width / 2
     window.blit(text, [rect, 10])
+    font = pygame.font.Font("./resources/Danger on the Motorway.otf", 16)
+    text = font.render(
+        "click an article below to read it:", 1,
+        [255, 255, 255])
+    window.blit(text, [10, 70])
     backButton.draw()
+    goalButton.draw()
+    exampleButton.draw()
+    mechanicsButton.draw()
+    controlButton.draw()
+    carButton.draw()
+    gamemodesButton.draw()
+
+def howPageScreen(screen):
+    rect = pygame.surface.Surface([800, 600])
+    rect.fill([0, 0, 0])
+    rect.set_alpha(200)
+    window.blit(rect, [0, 0])
+    backButton.draw()
+    fontbig = pygame.font.Font("./resources/Danger on the Motorway.otf", 32)
+    font = pygame.font.Font("./resources/Danger on the Motorway.otf", 16)
+    if screen == 1:
+        text = fontbig.render(
+            "goal of the game", 1,
+            [255, 255, 255])
+        rect = 400 - text.get_rect().width / 2
+        window.blit(text, [rect, 10])
+
+        text = font.render("the goal of the game is to clear all the levels by completing", 1, [255, 255, 255])
+        window.blit(text, [10, 70])
+        text = font.render("the different tasks defined for each level.", 1, [255, 255, 255])
+        window.blit(text, [10, 90])
+
+        text = font.render("all of these tasks will be mentioned in the next section.", 1, [255, 255, 255])
+        window.blit(text, [10, 130])
+
+    elif screen == 2:
+        text = fontbig.render(
+            "examples of level tasks", 1,
+            [255, 255, 255])
+        rect = 400 - text.get_rect().width / 2
+        window.blit(text, [rect, 10])
+
+        text = font.render("to complete each level, you have to complete a certain task.", 1, [255, 255, 255])
+        window.blit(text, [10, 70])
+        text = font.render("each task is defined below:", 1, [255, 255, 255])
+        window.blit(text, [10, 90])
+
+        text = font.render("1. Get a certain amount of cars to the exit before time runs out.", 1, [255, 255, 255])
+        window.blit(text, [10, 130])
+
+        text = font.render("2. survive a certain amount of accidents until the timer", 1, [255, 255, 255])
+        window.blit(text, [10, 170])
+        text = font.render("runs out.", 1, [255, 255, 255])
+        window.blit(text, [10, 190])
+
+        text = font.render("3. have less than a certain amount of angry drivers before the", 1, [255, 255, 255])
+        window.blit(text, [10, 230])
+        text = font.render("time runs out.", 1, [255, 255, 255])
+        window.blit(text, [10, 250])
+
+    elif screen == 3:
+        text = fontbig.render(
+            "controls", 1,
+            [255, 255, 255])
+        rect = 400 - text.get_rect().width / 2
+        window.blit(text, [rect, 10])
+
+        text = font.render("left click: toggle traffic lights", 1, [255, 255, 255])
+        window.blit(text, [10, 70])
+        text = font.render("right click: clear crashed cars", 1, [255, 255, 255])
+        window.blit(text, [10, 110])
+        text = font.render("escape key: pause game", 1, [255, 255, 255])
+        window.blit(text, [10, 150])
+
+    elif screen == 4:
+        text = fontbig.render(
+            "game mechanics", 1,
+            [255, 255, 255])
+        rect = 400 - text.get_rect().width / 2
+        window.blit(text, [rect, 10])
+
+        text = font.render("traffic lights:  they control the flow of traffic. toggle them", 1, [255, 255, 255])
+        window.blit(text, [10, 70])
+        text = font.render("from red to green to red and vice versa, by left clicking them.", 1, [255, 255, 255])
+        window.blit(text, [10, 90])
+
+        text = font.render("car accidents:  car accidents happen when two cars collide,", 1, [255, 255, 255])
+        window.blit(text, [10, 130])
+        text = font.render("stopping all traffic behind them. cars that have been in", 1, [255, 255, 255])
+        window.blit(text, [10, 150])
+        text = font.render("accidents will be identified by a yellow warning sign above", 1, [255, 255, 255])
+        window.blit(text, [10, 170])
+        text = font.render("them. right click on those cars to clear an accident.", 1, [255, 255, 255])
+        window.blit(text, [10, 190])
+
+        text = font.render("angry drivers:  angry drivers happen when a driver is stopped", 1, [255, 255, 255])
+        window.blit(text, [10, 230])
+        text = font.render("for too long. cars with angry drivers will be identified by", 1, [255, 255, 255])
+        window.blit(text, [10, 250])
+        text = font.render("a red, frowny face above them. angry drivers penalize how", 1, [255, 255, 255])
+        window.blit(text, [10, 270])
+        text = font.render('much time is left on a level, but they can be "calmed down"', 1, [255, 255, 255])
+        window.blit(text, [10, 290])
+        text = font.render("by restoring the flow of traffic in front of them.", 1, [255, 255, 255])
+        window.blit(text, [10, 310])
+
+    elif screen == 5:
+        text = fontbig.render(
+            "cars", 1,
+            [255, 255, 255])
+        rect = 400 - text.get_rect().width / 2
+        window.blit(text, [rect, 10])
+
+        text = font.render("there are three main different types of cars in the game.", 1, [255, 255, 255])
+        window.blit(text, [10, 70])
+
+        text = font.render("normal cars: normal cars drive at average speeds and take", 1, [255, 255, 255])
+        window.blit(text, [10, 110])
+        text = font.render("up some space.", 1, [255, 255, 255])
+        window.blit(text, [10, 130])
+
+        text = font.render("buses: buses drive at slow speeds and take up twice as much", 1, [255, 255, 255])
+        window.blit(text, [10, 190])
+        text = font.render("space as normal cars.", 1, [255, 255, 255])
+        window.blit(text, [10, 210])
+
+        text = font.render("motorcycles: motorcycles drive at relatively fast speeds and", 1, [255, 255, 255])
+        window.blit(text, [10, 270])
+        text = font.render("take up little space.", 1, [255, 255, 255])
+        window.blit(text, [10, 290])
+
+    elif screen == 6:
+        text = fontbig.render(
+            "gamemodes", 1,
+            [255, 255, 255])
+        rect = 400 - text.get_rect().width / 2
+        window.blit(text, [rect, 10])
+
+        text = font.render("there are three different playable gamemodes in the game.", 1, [255, 255, 255])
+        window.blit(text, [10, 70])
+
+        text = font.render("classic mode: classic mode is the original 12 game levels", 1, [255, 255, 255])
+        window.blit(text, [10, 110])
+        text = font.render("with different challenges.", 1, [255, 255, 255])
+        window.blit(text, [10, 130])
+
+        text = font.render("survival mode: survival mode is one level where players try", 1, [255, 255, 255])
+        window.blit(text, [10, 170])
+        text = font.render('to see how long they can "survive" before causing a', 1, [255, 255, 255])
+        window.blit(text, [10, 190])
+        text = font.render("car accident.", 1, [255, 255, 255])
+        window.blit(text, [10, 210])
+
+        text = font.render("freeplay mode: freeplay mode is a mode where you can practice", 1, [255, 255, 255])
+        window.blit(text, [10, 250])
+        text = font.render('playing the game or just mess around. you cannot lose in', 1, [255, 255, 255])
+        window.blit(text, [10, 270])
+        text = font.render("freeplay mode.", 1, [255, 255, 255])
+        window.blit(text, [10, 290])
 
 def settingsScreen():
     global window
@@ -530,6 +698,27 @@ while running:
             if screen == "how":
                 if event.key == pygame.K_b:
                     screen = previous
+                if event.key == pygame.K_1:
+                    screen = "how page"
+                    page = 1
+                if event.key == pygame.K_2:
+                    screen = "how page"
+                    page = 2
+                if event.key == pygame.K_3:
+                    screen = "how page"
+                    page = 3
+                if event.key == pygame.K_4:
+                    screen = "how page"
+                    page = 4
+                if event.key == pygame.K_5:
+                    screen = "how page"
+                    page = 5
+                if event.key == pygame.K_6:
+                    screen = "how page"
+                    page = 6
+            if screen == "how page":
+                if event.key == pygame.K_b:
+                    screen = "how"
             if screen == "game over":
                 if event.key == pygame.K_m:
                     screen = "menu"
@@ -723,6 +912,41 @@ while running:
                     if backButton.clicked:
                         screen = previous
                         backButton.clicked = False
+                    goalButton.click()
+                    if goalButton.clicked:
+                        screen = "how page"
+                        page = 1
+                        goalButton.clicked = False
+                    exampleButton.click()
+                    if exampleButton.clicked:
+                        screen = "how page"
+                        page = 2
+                        exampleButton.clicked = False
+                    controlButton.click()
+                    if controlButton.clicked:
+                        screen = "how page"
+                        page = 3
+                        controlButton.clicked = False
+                    mechanicsButton.click()
+                    if mechanicsButton.clicked:
+                        screen = "how page"
+                        page = 4
+                        mechanicsButton.clicked = False
+                    carButton.click()
+                    if carButton.clicked:
+                        screen = "how page"
+                        page = 5
+                        carButton.clicked = False
+                    gamemodesButton.click()
+                    if gamemodesButton.clicked:
+                        screen = "how page"
+                        page = 6
+                        gamemodesButton.clicked = False
+                if screen == "how page":
+                    backButton.click()
+                    if backButton.clicked:
+                        screen = "how"
+                        backButton.clicked = False
                 if screen == "select level":
                     backButton.click()
                     if backButton.clicked:
@@ -911,7 +1135,7 @@ while running:
         if mouse.objective["objective"] == "cars" and mouse.objective["amount"] <= 0:
             screen = "you win"
             update(cargroup, "stop")
-        if mouse.objective["objective"] == "crashes" and mouse.objective["amount"] <= 0:
+        if mouse.objective["objective"] == "crashes" and mouse.objective["amount"] < 1:
             screen = "game over"
             update(cargroup, "stop")
         if mouse.accident:
@@ -956,6 +1180,10 @@ while running:
     if screen == "how":
         background()
         howScreen()
+
+    if screen == "how page":
+        background()
+        howPageScreen(page)
 
     if screen == "settings":
         background()
