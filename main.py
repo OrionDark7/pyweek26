@@ -6,12 +6,17 @@ import structures, entities, levels
 
 pygame.font.init()
 window = pygame.display.set_mode([800, 600])
+pygame.display.set_caption("a game about traffic")
 window.fill([88, 198, 73])
 running = True
 show_me = False
+setHighscore = False
+sfx = True
+enteringName = False
 score = ""
 screen = "menu"
 previous = "menu"
+placeSet = None
 font = pygame.font.Font("./resources/Danger on the Motorway.otf", 16)
 bkg = pygame.image.load("./images/bkg.png")
 arrow = pygame.image.load("./images/arrow.png")
@@ -23,7 +28,7 @@ scoreFile = open("./data/scores.dat", "rb")
 try:
     highScores = pickle.load(scoreFile)
 except:
-    highScores = [0, 0, 0, 0, 0]
+    highScores = [[0, "player"], [0, "player"], [0, "player"], [0, "player"], [0, "player"]]
 scoreFile.close()
 
 level = 0
@@ -32,13 +37,71 @@ cargroup = pygame.sprite.Group()
 roadgroup = pygame.sprite.Group()
 lightgroup = pygame.sprite.Group()
 intersectiongroup = pygame.sprite.Group()
-intersectiongroup = pygame.sprite.Group()
 buttongroup = pygame.sprite.Group()
 buildinggroup = pygame.sprite.Group()
 pygame.time.set_timer(pygame.USEREVENT, 100) #Acceleration
 pygame.time.set_timer(pygame.USEREVENT + 1, 2250) #Car Spawn
 pygame.time.set_timer(pygame.USEREVENT + 2, 1000) #Countdown
 pygame.time.set_timer(pygame.USEREVENT + 3, 60000) #Time of Day change
+
+class slider(pygame.sprite.Sprite):
+    def __init__(self, pos, len, start):
+        pygame.sprite.Sprite.__init__(self)
+        self.image = pygame.surface.Surface([10, 10])
+        self.image.fill([255, 255, 255])
+        self.rect = self.image.get_rect()
+        self.rect.left, self.rect.top = list(pos)
+        self.pos = list(pos)
+        self.length = len
+        self.clicked = False
+        if start < len:
+            self.rect.left += start * 10
+
+    def draw(self):
+        global window
+
+        window.blit(self.image, [self.rect.left, self.rect.top + 3])
+
+        pygame.draw.rect(window, [255, 255, 255], [self.pos[0], self.pos[1], (self.length * 10) + 6, 15], 2)
+
+    def grab(self):
+        global mouse
+        if self.rect.collidepoint([mouse.rect.centerx, mouse.rect.centery]):
+            self.clicked = True
+
+    def drag(self):
+        global mouse
+
+        if mouse.rect.centerx > self.pos[0] + 8:
+            self.rect.centerx = mouse.rect.centerx
+        if mouse.rect.centerx < self.pos[0] + (self.length * 10) - 8:
+            self.rect.centerx = mouse.rect.centerx
+
+class textbox(pygame.sprite.Sprite):
+    def __init__(self, pos, text, len, max):
+        global font
+        pygame.sprite.Sprite.__init__(self)
+        self.text = str(text)
+        self.max = max
+        self.image = font.render(str(self.text), 1, [255, 255, 255])
+        self.underline = pygame.surface.Surface([len, 1])
+        self.underline.fill([255, 255, 255])
+        self.rect = self.image.get_rect()
+        self.rect.left, self.rect.top = list(pos)
+    def draw(self):
+        global window
+        window.blit(self.image, [self.rect.left, self.rect.top])
+        window.blit(self.underline, [self.rect.left, self.rect.top + 20])
+    def write(self, char):
+        allowed = ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z", "1", "2", "3", "4", "5", "6", "7", "8", "9", "0", "-", "=", "[", "]", ";", "'", ",", ".", "/"]
+        if len(self.text) < self.max:
+            if str(char) in allowed:
+                self.text = self.text + str(char)
+            elif char == "space":
+                self.text = self.text + " "
+            elif char == "backspace":
+                self.text = self.text[0 : len(self.text) - 1]
+            self.image = font.render(str(self.text), 1, [255, 255, 255])
 
 class trafficbutton(pygame.sprite.Sprite):
     def __init__(self, pos, id):
@@ -55,8 +118,6 @@ class trafficbutton(pygame.sprite.Sprite):
             self.clicked = True
             mouse.id = self.id
             update(lightgroup, "toggle-id")
-            #YOU WERE WORKING ON THIS AND PUTTING ID'S ON TRAFFIC LIGHTS
-
 
 class mouseclass(pygame.sprite.Sprite):
     def __init__(self):
@@ -152,7 +213,8 @@ class switch(pygame.sprite.Sprite):
 mouse = mouseclass()
 menuButton = button("[m] menu", [400, 280], True)
 replayButton = button("[r] replay", [400, 300], True)
-scoreButton = button("[h] view highscores", [400, 320], True)
+scoreButton = button("[v] view highscores", [400, 320], True)
+enterButton = button("[e] enter name", [10, 290], False)
 nextLevelButton = button("[n] next level", [400, 320], True)
 closeButton = button("[c] close", [20, 45], False)
 showButton = button("[s] show me", [180, 45], False)
@@ -169,7 +231,13 @@ mechanicsButton = button("[4] game mechanics", [10, 170], False)
 carButton = button("[5] cars", [10, 190], False)
 gamemodesButton = button("[6] gamemodes", [10, 210], False)
 
-fullSwitch = switch([140, 58], False)
+name = textbox([10, 290], "player", 100, 20)
+
+volumeSlider = slider([43, 300], 10, 5)
+
+fullSwitch = switch([313, 98], False)
+sfxSwitch = switch([313, 128], True)
+keySwitch = switch([313, 158], True)
 
 classic = imagebutton("./images/ui/buttons/classic.png", [80, 240], False)
 survival = imagebutton("./images/ui/buttons/freeplay.png", [320, 240], False)
@@ -284,17 +352,32 @@ def intro():
     window.fill([0, 0, 0])
 
     pygame.time.set_timer(pygame.USEREVENT + 1, 10000)
+    pygame.time.set_timer(pygame.USEREVENT + 2, 10000)
 
     pygame.display.flip()
     sleep(2)
 
     font = pygame.font.Font("./resources/Danger on the Motorway.otf", 32)
 
-    text = font.render(
-        "level " + str(level), 1,
-        [255, 255, 255])
-    rect = text.get_rect().width / 2
-    window.blit(text, [400 - rect, 185])
+    if mouse.objective["objective"] != "freeplay" and mouse.objective["objective"] != "survival":
+        text = font.render(
+            "level " + str(level), 1,
+            [255, 255, 255])
+        rect = text.get_rect().width / 2
+        window.blit(text, [400 - rect, 185])
+    elif mouse.objective["objective"] == "freeplay":
+        text = font.render(
+            "freeplay mode", 1,
+            [255, 255, 255])
+        rect = text.get_rect().width / 2
+        window.blit(text, [400 - rect, 185])
+    elif mouse.objective["objective"] == "survival":
+        text = font.render(
+            "survival mode", 1,
+            [255, 255, 255])
+        rect = text.get_rect().width / 2
+        window.blit(text, [400 - rect, 185])
+
     pygame.display.flip()
 
     font = pygame.font.Font("./resources/Danger on the Motorway.otf", 16)
@@ -324,9 +407,42 @@ def intro():
             [255, 255, 255])
         rect = text.get_rect().width / 2
         window.blit(text, [400 - rect, 250])
+    elif mouse.objective["objective"] == "survival":
+        text = font.render(
+            "objective: survive for as long as you can without", 1,
+            [255, 255, 255])
+        rect = text.get_rect().width / 2
+        window.blit(text, [400 - rect, 230])
+        text = font.render(
+            "any accidents", 1,
+            [255, 255, 255])
+        rect = text.get_rect().width / 2
+        window.blit(text, [400 - rect, 250])
+    elif mouse.objective["objective"] == "freeplay":
+        text = font.render(
+            "objective: have fun! it's freeplay mode!", 1,
+            [255, 255, 255])
+        rect = text.get_rect().width / 2
+        window.blit(text, [400 - rect, 230])
     pygame.display.flip()
 
-    sleep(5)
+    sleep(3)
+
+    for i in range(20):
+        background()
+        roadgroup.draw(window)
+        intersectiongroup.draw(window)
+        buildinggroup.draw(window)
+        update(cargroup, "traffic")
+        update(cargroup, "crash")
+        update(cargroup, "drive")
+        update(cargroup, "draw")
+        update(lightgroup, "draw")
+        night(night_setting[mouse.objective["tod"]])
+
+        rect = pygame.surface.Surface([800 - (40 * i), 600 - (30 * i)])
+        window.blit(rect, [0 + (i * 20), 0 + (i * 15)])
+        pygame.display.flip()
 
 def selectScreen():
     global window
@@ -391,7 +507,7 @@ def howScreen():
     window.blit(text, [rect, 10])
     font = pygame.font.Font("./resources/Danger on the Motorway.otf", 16)
     text = font.render(
-        "click an article below to read it:", 1,
+        "click on a topic below to read about it:", 1,
         [255, 255, 255])
     window.blit(text, [10, 70])
     backButton.draw()
@@ -586,26 +702,44 @@ def highScore():
 
     font = pygame.font.Font("./resources/Danger on the Motorway.otf", 16)
     text = font.render(
-        "1. " + readableTime(highScores[0]), 1,
+        "1. " + readableTime(highScores[0][0]) + " set by " + highScores[0][1], 1,
         [255, 255, 255])
     window.blit(text, [10, 70])
     text = font.render(
-        "2. " + readableTime(highScores[1]), 1,
+        "2. " + readableTime(highScores[1][0]) + " set by " + highScores[1][1], 1,
         [255, 255, 255])
     window.blit(text, [10, 100])
     text = font.render(
-        "3. " + readableTime(highScores[2]), 1,
+        "3. " + readableTime(highScores[2][0]) + " set by " + highScores[2][1], 1,
         [255, 255, 255])
     window.blit(text, [10, 130])
     text = font.render(
-        "4. " + readableTime(highScores[3]), 1,
+        "4. " + readableTime(highScores[3][0]) + " set by " + highScores[3][1], 1,
         [255, 255, 255])
     window.blit(text, [10, 160])
     text = font.render(
-        "5. " + readableTime(highScores[4]), 1,
+        "5. " + readableTime(highScores[4][0]) + " set by " + highScores[4][1], 1,
         [255, 255, 255])
     window.blit(text, [10, 190])
     backButton.draw()
+
+    if setHighscore and not enteringName:
+        text = font.render(
+            "congrats! you just set a new highscore for " + str(placeSet) + "th place!", 1,
+            [255, 255, 255])
+        window.blit(text, [10, 230])
+        text = font.render(
+            "want to sign your name into the highscore board?", 1,
+            [255, 255, 255])
+        window.blit(text, [10, 250])
+        enterButton.draw()
+
+    if enteringName and setHighscore:
+        text = font.render(
+            "enter your name below, when you are finished press return.", 1,
+            [255, 255, 255])
+        window.blit(text, [10, 250])
+        name.draw()
 
 def settingsScreen():
     global window
@@ -620,12 +754,99 @@ def settingsScreen():
     rect = 400 - text.get_rect().width / 2
     window.blit(text, [rect, 10])
     backButton.draw()
+
+    pygame.draw.rect(window, [255, 255, 255], [33, 50, 333, 500], 2)
+
     font = pygame.font.Font("./resources/Danger on the Motorway.otf", 16)
+
+    text = font.render(
+        "general", 1,
+        [255, 255, 255])
+    rect = text.get_rect().width / 2
+    window.blit(text, [200 - rect, 60])
+
     text = font.render(
         "fullscreen", 1,
         [255, 255, 255])
-    window.blit(text, [10, 60])
+    window.blit(text, [43, 100])
     fullSwitch.draw()
+
+    text = font.render(
+        "sfx", 1,
+        [255, 255, 255])
+    window.blit(text, [43, 130])
+    sfxSwitch.draw()
+
+    text = font.render(
+        "keyboard shortcuts", 1,
+        [255, 255, 255])
+    window.blit(text, [43, 160])
+    keySwitch.draw()
+
+    volumeSlider.draw()
+
+    pygame.draw.rect(window, [255, 255, 255], [433, 50, 333, 500], 2)
+
+    text = font.render(
+        "about", 1,
+        [255, 255, 255])
+    rect = text.get_rect().width / 2
+    window.blit(text, [600 - rect, 60])
+
+    text = font.render(
+        "version 1.0, revised 10/26", 1,
+        [255, 255, 255])
+    window.blit(text, [443, 100])
+
+    text = font.render(
+        "copyright orion williams", 1,
+        [255, 255, 255])
+    window.blit(text, [443, 130])
+
+    text = font.render(
+        "created for pyweek 26", 1,
+        [255, 255, 255])
+    window.blit(text, [443, 160])
+
+    text = font.render(
+        "built in python and pygame", 1,
+        [255, 255, 255])
+    window.blit(text, [443, 220])
+
+    text = font.render(
+        "art made in photoshop cs5", 1,
+        [255, 255, 255])
+    window.blit(text, [443, 250])
+
+    text = font.render(
+        "sound effects from:", 1,
+        [255, 255, 255])
+    window.blit(text, [443, 310])
+    text = font.render(
+        "- freesound.org", 1,
+        [255, 255, 255])
+    window.blit(text, [443, 340])
+    text = font.render(
+        "- created in bfxr", 1,
+        [255, 255, 255])
+    window.blit(text, [443, 370])
+    text = font.render(
+        "- earthcam outside wrigley", 1,
+        [255, 255, 255])
+    window.blit(text, [443, 400])
+    text = font.render(
+        "  field in chicago, il", 1,
+        [255, 255, 255])
+    window.blit(text, [443, 430])
+
+    text = font.render(
+        "http://pyweek.org/e/deep26", 1,
+        [255, 255, 255])
+    window.blit(text, [443, 490])
+    text = font.render(
+        "http://oriondark7.com/", 1,
+        [255, 255, 255])
+    window.blit(text, [443, 520])
 
 def menuScreen():
     global window
@@ -814,15 +1035,14 @@ def getLevel(level):
 getLevel(0)
 
 while running:
-    print len(mouse.angry)
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
         if event.type == pygame.KEYDOWN:
-            if screen == "settings":
+            if screen == "settings" and keySwitch.state:
                 if event.key == pygame.K_b:
                     screen = previous
-            if screen == "how":
+            if screen == "how" and keySwitch.state:
                 if event.key == pygame.K_b:
                     screen = previous
                 if event.key == pygame.K_1:
@@ -843,20 +1063,39 @@ while running:
                 if event.key == pygame.K_6:
                     screen = "how page"
                     page = 6
-            if screen == "how page":
+            if screen == "how page" and keySwitch.state:
                 if event.key == pygame.K_b:
                     screen = "how"
-            if screen == "game over":
+            if screen == "game over" and keySwitch.state:
                 if event.key == pygame.K_m:
-                    screen = "select level"
+                    if mouse.objective["objective"] == "survival":
+                        screen = "select"
+                    else:
+                        screen = "select level"
                     level = 0
                     getLevel(level)
                     mouse.score = 0
+                    mouse.angry = pygame.sprite.Group()
                 if event.key == pygame.K_r:
                     getLevel(level)
                     screen = "intro"
                     mouse.score = 0
-            if screen == "you win":
+                    mouse.angry = pygame.sprite.Group()
+                if event.key == pygame.K_v and mouse.objective["objective"] == "survival":
+                    screen = "high score"
+            if screen == "high score":
+                if enteringName:
+                    name.write(pygame.key.name(event.key))
+                if event.key == pygame.K_b and not enteringName and keySwitch.state:
+                    screen = "game over"
+                if event.key == pygame.K_e and not enteringName and keySwitch.state:
+                    enteringName = True
+                if event.key == pygame.K_RETURN and enteringName:
+                    enteringName = False
+                    highScores[placeSet - 1] = highScores[placeSet - 1][0], name.text
+                    placeSet = 6
+                    setHighscore = False
+            if screen == "you win" and keySwitch.state:
                 if event.key == pygame.K_m:
                     screen = "select level"
                     level = 0
@@ -867,17 +1106,17 @@ while running:
                     getLevel(level)
                     screen = "intro"
                     mouse.score = 0
-                    mouse.angry = pygame.sprite.Group
+                    mouse.angry = pygame.sprite.Group()
                 if event.key == pygame.K_n and level < 12:
                     screen = "intro"
                     level += 1
                     getLevel(level)
                     mouse.score = 0
-                    mouse.angry = pygame.sprite.Group
-            if screen == "select level":
+                    mouse.angry = pygame.sprite.Group()
+            if screen == "select level" and keySwitch.state:
                 if event.key == pygame.K_b:
                     screen = "select"
-            elif screen == "select":
+            elif screen == "select" and keySwitch.state:
                 if event.key == pygame.K_c:
                     screen = "select level"
                     #screen = "intro"
@@ -895,7 +1134,7 @@ while running:
                     screen = "menu"
                     level = 0
                     getLevel(level)
-            if screen == "menu":
+            if screen == "menu" and keySwitch.state:
                 if event.key == pygame.K_p:
                     screen = "select"
                     # level = 1
@@ -910,14 +1149,14 @@ while running:
                 if event.key == pygame.K_ESCAPE:
                     screen = "pause"
                     update(cargroup, "stop")
-                if mouse.accident and screen == "game":
+                if mouse.accident and screen == "game" and keySwitch.state:
                     if event.key == pygame.K_c:
                         mouse.accident = False
                         show_me = False
                     if event.key == pygame.K_s:
                         show_me = True
                         accidentpos = [mouse.accidentinfo[0] - 30, mouse.accidentinfo[1] - 80]
-            elif screen == "pause":
+            elif screen == "pause" and keySwitch.state:
                 if event.key == pygame.K_ESCAPE or event.key == pygame.K_r:
                     screen = "game"
                 if event.key == pygame.K_h:
@@ -930,6 +1169,15 @@ while running:
                     screen = "menu"
                     level = 0
                     getLevel(level)
+            elif screen == "pause" and not keySwitch.state:
+                if event.key == pygame.K_ESCAPE:
+                    screen = "game"
+        if event.type == pygame.MOUSEBUTTONUP:
+            if screen == "settings":
+                volumeSlider.clicked = False
+        if event.type == pygame.MOUSEMOTION:
+            if screen == "settings":
+                volumeSlider.drag()
         if event.type == pygame.MOUSEBUTTONDOWN:
             clicked = pygame.mouse.get_pressed()
             mouse.move(event.pos[0], event.pos[1])
@@ -995,6 +1243,7 @@ while running:
                         getLevel(level)
                         menuButton.clicked = False
                         mouse.score = 0
+                        mouse.angry = pygame.sprite.Group()
                     replayButton.click()
                     if replayButton.clicked:
                         mouse.reset_stats()
@@ -1002,6 +1251,7 @@ while running:
                         screen = "intro"
                         replayButton.clicked = False
                         mouse.score = 0
+                        mouse.angry = pygame.sprite.Group()
                     scoreButton.click()
                     if scoreButton.clicked:
                         screen = "high score"
@@ -1015,6 +1265,7 @@ while running:
                         getLevel(level)
                         menuButton.clicked = False
                         mouse.score = 0
+                        mouse.angry = pygame.sprite.Group()
                     replayButton.click()
                     if replayButton.clicked:
                         mouse.reset_stats()
@@ -1022,6 +1273,7 @@ while running:
                         screen = "intro"
                         replayButton.clicked = False
                         mouse.score = 0
+                        mouse.angry = pygame.sprite.Group()
                     nextLevelButton.click()
                     if nextLevelButton.clicked and level < 12:
                         level += 1
@@ -1029,7 +1281,9 @@ while running:
                         screen = "intro"
                         nextLevelButton.clicked = False
                         mouse.score = 0
+                        mouse.angry = pygame.sprite.Group()
                 if screen == "settings":
+                    volumeSlider.grab()
                     backButton.click()
                     if backButton.clicked:
                         screen = previous
@@ -1041,6 +1295,13 @@ while running:
                         else:
                             window = pygame.display.set_mode([800, 600])
                         fullSwitch.clicked = False
+                    sfxSwitch.toggle()
+                    if sfxSwitch.clicked:
+                        sfx = sfxSwitch.state
+                        sfxSwitch.clicked = False
+                    keySwitch.toggle()
+                    if keySwitch.clicked:
+                        keySwitch.clicked = False
                 if screen == "how":
                     backButton.click()
                     if backButton.clicked:
@@ -1091,6 +1352,10 @@ while running:
                     if backButton.clicked:
                         screen = "game over"
                         backButton.clicked = False
+                    enterButton.click()
+                    if enterButton.clicked:
+                        enteringName = True
+                        enterButton.clicked = False
                 if screen == "select":
                     classic.click()
                     if classic.clicked:
@@ -1223,6 +1488,7 @@ while running:
                         cargroup.add(entities.car(pos, i.orientation, dir, cargroup))
         if event.type == pygame.USEREVENT + 2:
             update(cargroup, "wait")
+            pygame.time.set_timer(pygame.USEREVENT + 2, 1000)
             if screen == "game" and mouse.objective["time"] != "freeplay":
                 if mouse.objective["objective"] == "survival":
                     mouse.objective["time"] += 1
@@ -1283,26 +1549,36 @@ while running:
                 screen = "game over"
                 update(cargroup, "stop")
                 score = mouse.objective["time"]
-                if score > highScores[0]:
+                if score > highScores[0][0]:
                     highScores[4] = highScores[3]
                     highScores[3] = highScores[2]
                     highScores[2] = highScores[1]
                     highScores[1] = highScores[0]
-                    highScores[0] = score
-                elif score > highScores[1]:
+                    highScores[0] = score, "player"
+                    setHighscore = True
+                    placeSet = 1
+                elif score > highScores[1][0]:
                     highScores[4] = highScores[3]
                     highScores[3] = highScores[2]
                     highScores[2] = highScores[1]
-                    highScores[1] = score
-                elif score > highScores[2]:
+                    highScores[1] = score, "player"
+                    setHighscore = True
+                    placeSet = 2
+                elif score > highScores[2][0]:
                     highScores[4] = highScores[3]
                     highScores[3] = highScores[2]
-                    highScores[2] = score
-                elif score > highScores[3]:
+                    highScores[2] = score, "player"
+                    setHighscore = True
+                    placeSet = 3
+                elif score > highScores[3][0]:
                     highScores[4] = highScores[3]
-                    highScores[3] = score
-                elif score > highScores[4]:
-                    highScores[4] = score
+                    highScores[3] = score, "player"
+                    setHighscore = True
+                    placeSet = 4
+                elif score > highScores[4][0]:
+                    highScores[4] = score, "player"
+                    setHighscore = True
+                    placeSet = 5
                 if len(str(int(math.floor(mouse.objective["time"] % 60)))) == 1:
                     score = str(int(math.floor(mouse.objective["time"] / 60))) + ":0" + str(int(math.floor(
                             mouse.objective["time"] % 60)))
