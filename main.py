@@ -1176,6 +1176,7 @@ while running:
                     mouse.score = 0
                     mouse.angry = pygame.sprite.Group()
                 if event.key == pygame.K_n and level < 12:
+                    mouse.reset_stats()
                     screen = "intro"
                     level += 1
                     getLevel(level)
@@ -1366,6 +1367,7 @@ while running:
                         mouse.angry = pygame.sprite.Group()
                     nextLevelButton.click()
                     if nextLevelButton.clicked and level < 12:
+                        mouse.reset_stats()
                         level += 1
                         getLevel(level)
                         screen = "intro"
