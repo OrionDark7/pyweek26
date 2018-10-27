@@ -658,7 +658,7 @@ def howPageScreen(screen):
         rect = 400 - text.get_rect().width / 2
         window.blit(text, [rect, 10])
 
-        text = font.render("there are three main different types of cars in the game.", 1, [255, 255, 255])
+        text = font.render("there are two main different types of cars in the game.", 1, [255, 255, 255])
         window.blit(text, [10, 70])
 
         text = font.render("normal cars: normal cars drive at average speeds and take", 1, [255, 255, 255])
@@ -676,14 +676,6 @@ def howPageScreen(screen):
 
         image = pygame.image.load("./images/cars/transit/car-right.png")
         window.blit(image, [10, 230])
-
-        text = font.render("motorcycles: motorcycles drive at relatively fast speeds and", 1, [255, 255, 255])
-        window.blit(text, [10, 270])
-        text = font.render("take up little space.", 1, [255, 255, 255])
-        window.blit(text, [10, 290])
-
-        image = pygame.image.load("./images/cars/motorcycle-red/bike-right.png")
-        window.blit(image, [10, 310])
 
     elif screen == 6:
         text = fontbig.render(
@@ -857,21 +849,17 @@ def settingsScreen():
         [255, 255, 255])
     window.blit(text, [443, 310])
     text = font.render(
-        "- freesound.org", 1,
+        "- created in bfxr", 1,
         [255, 255, 255])
     window.blit(text, [443, 340])
     text = font.render(
-        "- created in bfxr", 1,
+        "- earthcam outside wrigley", 1,
         [255, 255, 255])
     window.blit(text, [443, 370])
     text = font.render(
-        "- earthcam outside wrigley", 1,
-        [255, 255, 255])
-    window.blit(text, [443, 400])
-    text = font.render(
         "  field in chicago, il", 1,
         [255, 255, 255])
-    window.blit(text, [443, 430])
+    window.blit(text, [443, 400])
 
     text = font.render(
         "http://pyweek.org/e/deep26", 1,
@@ -1145,6 +1133,7 @@ while running:
                     mouse.score = 0
                     mouse.angry = pygame.sprite.Group()
                 if event.key == pygame.K_r:
+                    mouse.reset_stats()
                     getLevel(level)
                     screen = "intro"
                     mouse.score = 0
@@ -1192,6 +1181,7 @@ while running:
                     #level = 1
                     #getLevel(level)
                 if event.key == pygame.K_s:
+                    mouse.reset_stats()
                     screen = "intro"
                     level = "survival"
                     getLevel(level)
@@ -1343,10 +1333,11 @@ while running:
                         replayButton.clicked = False
                         mouse.score = 0
                         mouse.angry = pygame.sprite.Group()
-                    scoreButton.click()
-                    if scoreButton.clicked:
-                        screen = "high score"
-                        scoreButton.clicked = False
+                    if mouse.objective["objective"] == "survival":
+                        scoreButton.click()
+                        if scoreButton.clicked:
+                            screen = "high score"
+                            scoreButton.clicked = False
                 elif screen == "you win":
                     menuButton.click()
                     if menuButton.clicked:
@@ -1576,8 +1567,6 @@ while running:
                 if not mouse.collide:
                     if type == 0:
                         cargroup.add(entities.bus(pos, i.orientation, dir, cargroup))
-                    if type == 1:
-                        cargroup.add(entities.motorcycle(pos, i.orientation, dir, cargroup))
                     elif type != 0 and type != 1:
                         cargroup.add(entities.car(pos, i.orientation, dir, cargroup))
         if event.type == pygame.USEREVENT + 2:
