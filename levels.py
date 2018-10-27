@@ -55,7 +55,7 @@ def level(level):
         objectives = {"objective": "cars", "amount": 99, "time": 10, "tod": 14}
         roads.add(road([470, 0], "vertical"))
     if level == 1:
-        objectives = {"objective": "cars", "amount": 15, "time": 120, "tod": 10}
+        objectives = {"objective": "cars", "amount": 15, "time": 240, "tod": 10}
         roads.add(road([370, 0], "vertical"))
         roads.add(road([0, 270], "horizontal"))
         lights.add(light([370, 250], "vertical", False, 1))

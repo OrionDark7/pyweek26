@@ -6,7 +6,7 @@ import structures, entities, levels
 
 pygame.font.init()
 window = pygame.display.set_mode([800, 600])
-pygame.display.set_caption("a game about traffic")
+pygame.display.set_caption("Road Rage")
 window.fill([88, 198, 73])
 running = True
 show_me = False
@@ -23,6 +23,8 @@ arrow = pygame.image.load("./images/arrow.png")
 night_ = pygame.surface.Surface([800, 600])
 night_setting = [200, 166, 133, 100, 66, 33, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 17, 33, 66, 100, 133, 166, 200, 217]
 accidentpos = [0, 0]
+tutorialindex = 0
+dotutorial = False
 
 scoreFile = open("./data/scores.dat", "rb")
 try:
@@ -31,6 +33,7 @@ except:
     highScores = [[0, "player"], [0, "player"], [0, "player"], [0, "player"], [0, "player"]]
 scoreFile.close()
 
+volume = 0.5
 level = 0
 page = 1
 cargroup = pygame.sprite.Group()
@@ -54,6 +57,10 @@ class slider(pygame.sprite.Sprite):
         self.pos = list(pos)
         self.length = len
         self.clicked = False
+        self.boundaryrect = pygame.surface.Surface([self.length * 10, 15])
+        self.boundaryrect = self.boundaryrect.get_rect()
+        self.boundaryrect.left, self.boundaryrect.top = list(pos)
+        self.where = start
         if start < len:
             self.rect.left += start * 10
 
@@ -72,10 +79,21 @@ class slider(pygame.sprite.Sprite):
     def drag(self):
         global mouse
 
-        if mouse.rect.centerx > self.pos[0] + 8:
-            self.rect.centerx = mouse.rect.centerx
-        if mouse.rect.centerx < self.pos[0] + (self.length * 10) - 8:
-            self.rect.centerx = mouse.rect.centerx
+        print self.boundaryrect.left + 3
+        print self.rect.left
+
+        print self.rect.left < self.boundaryrect.left + 3
+
+        if self.clicked:
+            if mouse.rect.left < self.boundaryrect.right - 6 and self.rect.left < self.boundaryrect.left + 3:
+                self.rect.left = mouse.rect.centerx
+            elif mouse.rect.left > self.boundaryrect.right - 6:
+                self.rect.left = self.boundaryrect.right - 6
+            elif mouse.rect.left > self.pos[0] + 3:
+                self.rect.left = mouse.rect.centerx
+
+            self.where = int(self.rect.left - self.pos[0]) / 10
+            print self.where
 
 class textbox(pygame.sprite.Sprite):
     def __init__(self, pos, text, len, max):
@@ -230,10 +248,12 @@ controlButton = button("[3] controls", [10, 150], False)
 mechanicsButton = button("[4] game mechanics", [10, 170], False)
 carButton = button("[5] cars", [10, 190], False)
 gamemodesButton = button("[6] gamemodes", [10, 210], False)
+nextButton = button("[n] next", [20, 560], False)
+skipButton = button("[x] skip tutorial", [140, 560], False)
 
 name = textbox([10, 290], "player", 100, 20)
 
-volumeSlider = slider([43, 300], 10, 5)
+volumeSlider = slider([243, 188], 11, 5)
 
 fullSwitch = switch([313, 98], False)
 sfxSwitch = switch([313, 128], True)
@@ -594,35 +614,42 @@ def howPageScreen(screen):
         window.blit(text, [10, 70])
         text = font.render("from red to green to red and vice versa, by left clicking them.", 1, [255, 255, 255])
         window.blit(text, [10, 90])
+        text = font.render("one important note, clicking the intersection will switch both", 1, [255, 255, 255])
+        window.blit(text, [10, 110])
+        text = font.render("lights at that intersection, while just clicking one light", 1, [255, 255, 255])
+        window.blit(text, [10, 130])
+        text = font.render("individually will switch just that light.", 1,
+                           [255, 255, 255])
+        window.blit(text, [10, 150])
 
         text = font.render("car accidents:  car accidents happen when two cars collide,", 1, [255, 255, 255])
-        window.blit(text, [10, 130])
-        text = font.render("stopping all traffic behind them. cars that have been in", 1, [255, 255, 255])
-        window.blit(text, [10, 150])
-        text = font.render("accidents will be identified by a yellow warning sign above", 1, [255, 255, 255])
-        window.blit(text, [10, 170])
-        text = font.render("them. right click on those cars to clear an accident.", 1, [255, 255, 255])
         window.blit(text, [10, 190])
+        text = font.render("stopping all traffic behind them. cars that have been in", 1, [255, 255, 255])
+        window.blit(text, [10, 210])
+        text = font.render("accidents will be identified by a yellow warning sign above", 1, [255, 255, 255])
+        window.blit(text, [10, 230])
+        text = font.render("them. right click on those cars to clear an accident.", 1, [255, 255, 255])
+        window.blit(text, [10, 250])
 
         text = font.render("angry drivers:  angry drivers happen when a driver is stopped", 1, [255, 255, 255])
-        window.blit(text, [10, 230])
-        text = font.render("for too long. cars with angry drivers will be identified by", 1, [255, 255, 255])
-        window.blit(text, [10, 250])
-        text = font.render("a red, frowny face above them. angry drivers penalize how", 1, [255, 255, 255])
-        window.blit(text, [10, 270])
-        text = font.render('much time is left on a level, but they can be "calmed down"', 1, [255, 255, 255])
         window.blit(text, [10, 290])
-        text = font.render("by restoring the flow of traffic in front of them.", 1, [255, 255, 255])
+        text = font.render("for too long. cars with angry drivers will be identified by", 1, [255, 255, 255])
         window.blit(text, [10, 310])
+        text = font.render("a red, frowny face above them. angry drivers penalize how", 1, [255, 255, 255])
+        window.blit(text, [10, 330])
+        text = font.render('much time is left on a level, but they can be "calmed down"', 1, [255, 255, 255])
+        window.blit(text, [10, 350])
+        text = font.render("by restoring the flow of traffic in front of them.", 1, [255, 255, 255])
+        window.blit(text, [10, 370])
 
         image = pygame.image.load("./images/ui/how-to/traffic lights.png")
-        window.blit(image, [80, 400])
+        window.blit(image, [80, 430])
 
         image = pygame.image.load("./images/ui/how-to/accident.png")
-        window.blit(image, [320, 400])
+        window.blit(image, [320, 430])
 
         image = pygame.image.load("./images/ui/how-to/angry drivers.png")
-        window.blit(image, [540, 400])
+        window.blit(image, [540, 430])
     elif screen == 5:
         text = fontbig.render(
             "cars", 1,
@@ -723,9 +750,11 @@ def highScore():
     window.blit(text, [10, 190])
     backButton.draw()
 
+    placeFollower = [None, "st", "nd", "rd", "th", "th"]
+
     if setHighscore and not enteringName:
         text = font.render(
-            "congrats! you just set a new highscore for " + str(placeSet) + "th place!", 1,
+            "congrats! you just set a new highscore for " + str(placeSet) + placeFollower[placeSet] + " place!", 1,
             [255, 255, 255])
         window.blit(text, [10, 230])
         text = font.render(
@@ -783,6 +812,10 @@ def settingsScreen():
     window.blit(text, [43, 160])
     keySwitch.draw()
 
+    text = font.render(
+        "volume: " + str(volume), 1,
+        [255, 255, 255])
+    window.blit(text, [43, 190])
     volumeSlider.draw()
 
     pygame.draw.rect(window, [255, 255, 255], [433, 50, 333, 500], 2)
@@ -794,7 +827,7 @@ def settingsScreen():
     window.blit(text, [600 - rect, 60])
 
     text = font.render(
-        "version 1.0, revised 10/26", 1,
+        "version 1.0, revised 10/27", 1,
         [255, 255, 255])
     window.blit(text, [443, 100])
 
@@ -850,7 +883,7 @@ def settingsScreen():
 
 def menuScreen():
     global window
-    rect = pygame.surface.Surface([195, 180])
+    rect = pygame.surface.Surface([235, 180])
     rect.fill([0, 0, 0])
     rect.set_alpha(200)
     window.blit(rect, [10, 10])
@@ -860,7 +893,7 @@ def menuScreen():
     quitButton.draw()
     font = pygame.font.Font("./resources/Danger on the Motorway.otf", 32)
     text = font.render(
-        "title", 1,
+        "road rage", 1,
         [255, 255, 255])
     window.blit(text, [20, 22])
 
@@ -997,6 +1030,33 @@ def displayinfo():
         window.blit(text, [20, 535])
         text = font.render("accidents: " + str(int(math.floor(mouse.accidents))), 1, [255, 255, 255])
         window.blit(text, [20, 560])
+
+def tutorial():
+    global window, tutorialindex, dotutorial
+    rect = pygame.surface.Surface([780, 80])
+    rect.fill([0, 0, 0])
+    rect.set_alpha(200)
+    window.blit(rect, [10, 502])
+    alltext = ["welcome to road rage! click next to begin.",
+               "road rage is a game all about managing the flow of traffic.",
+               "right now, the flow is stopped! let's fix that.",
+               "click on any one of the red rectangles that you see.",
+               "nice! we got one lane of traffic going now.",
+               "now, we can get the other lane of traffic flowing as well!",
+               "click on the intersection (except for the red rectangles).",
+               "awesome! now the other lane is flowing smoothly now!",
+               "it looks like, you've got the hang of it, so i'll be off.",
+               "oh! i forgot, if you have an accident, right click to clear it.",
+               "be sure to right click both of the crashed cars, not just one.",
+               "you can also pause at any time by pressing the escape key.",
+               "that's it! good luck!"]
+    if tutorialindex >= len(alltext):
+        dotutorial = False
+    else:
+        text = font.render(alltext[tutorialindex], 1, [255, 255, 255])
+        window.blit(text, [20, 512])
+        nextButton.draw()
+        skipButton.draw()
 
 def night(a):
     # A night time overdrop to make it seem dark
@@ -1156,6 +1216,11 @@ while running:
                     if event.key == pygame.K_s:
                         show_me = True
                         accidentpos = [mouse.accidentinfo[0] - 30, mouse.accidentinfo[1] - 80]
+                if dotutorial and keySwitch.state:
+                    if event.key == pygame.K_n:
+                        tutorialindex += 1
+                    if event.key == pygame.K_x:
+                        dotutorial = False
             elif screen == "pause" and keySwitch.state:
                 if event.key == pygame.K_ESCAPE or event.key == pygame.K_r:
                     screen = "game"
@@ -1175,9 +1240,13 @@ while running:
         if event.type == pygame.MOUSEBUTTONUP:
             if screen == "settings":
                 volumeSlider.clicked = False
+                volume = volumeSlider.where
+                #pygame.mixer_music.set_volume(float(volume * 0.1))
         if event.type == pygame.MOUSEMOTION:
+            mouse.move(event.pos[0], event.pos[1])
             if screen == "settings":
                 volumeSlider.drag()
+                volume = volumeSlider.where
         if event.type == pygame.MOUSEBUTTONDOWN:
             clicked = pygame.mouse.get_pressed()
             mouse.move(event.pos[0], event.pos[1])
@@ -1194,7 +1263,16 @@ while running:
                             show_me = True
                             accidentpos = [mouse.accidentinfo[0] - 30, mouse.accidentinfo[1] - 80]
                             showButton.clicked = False
-                if screen == "menu":
+                    if level == 1:
+                        nextButton.click()
+                        if nextButton.clicked:
+                            tutorialindex += 1
+                            nextButton.clicked = False
+                        skipButton.click()
+                        if skipButton.clicked:
+                            dotutorial = False
+                            skipButton.clicked = False
+                elif screen == "menu":
                     playButton.click()
                     if playButton.clicked:
                         screen = "select"
@@ -1213,7 +1291,7 @@ while running:
                     if quitButton.clicked:
                         running = False
                         quitButton.clicked = False
-                if screen == "pause":
+                elif screen == "pause":
                     resumeButton.click()
                     if resumeButton.clicked:
                         screen = "pause"
@@ -1234,7 +1312,7 @@ while running:
                         level = 0
                         getLevel(0)
                         quitButton.clicked = False
-                if screen == "game over":
+                elif screen == "game over":
                     menuButton.click()
                     if menuButton.clicked:
                         mouse.reset_stats()
@@ -1256,7 +1334,7 @@ while running:
                     if scoreButton.clicked:
                         screen = "high score"
                         scoreButton.clicked = False
-                if screen == "you win":
+                elif screen == "you win":
                     menuButton.click()
                     if menuButton.clicked:
                         mouse.reset_stats()
@@ -1282,7 +1360,7 @@ while running:
                         nextLevelButton.clicked = False
                         mouse.score = 0
                         mouse.angry = pygame.sprite.Group()
-                if screen == "settings":
+                elif screen == "settings":
                     volumeSlider.grab()
                     backButton.click()
                     if backButton.clicked:
@@ -1302,7 +1380,7 @@ while running:
                     keySwitch.toggle()
                     if keySwitch.clicked:
                         keySwitch.clicked = False
-                if screen == "how":
+                elif screen == "how":
                     backButton.click()
                     if backButton.clicked:
                         screen = previous
@@ -1337,17 +1415,17 @@ while running:
                         screen = "how page"
                         page = 6
                         gamemodesButton.clicked = False
-                if screen == "how page":
+                elif screen == "how page":
                     backButton.click()
                     if backButton.clicked:
                         screen = "how"
                         backButton.clicked = False
-                if screen == "select level":
+                elif screen == "select level":
                     backButton.click()
                     if backButton.clicked:
                         screen = "select"
                         backButton.clicked = False
-                if screen == "high score":
+                elif screen == "high score":
                     backButton.click()
                     if backButton.clicked:
                         screen = "game over"
@@ -1392,6 +1470,8 @@ while running:
                         screen = "intro"
                         getLevel(level)
                         level1.clicked = False
+                        dotutorial = True
+                        tutorialindex = True
                     level2.click()
                     if level2.clicked:
                         level = 2
@@ -1534,7 +1614,10 @@ while running:
         update(lightgroup, "draw")
         night(night_setting[mouse.objective["tod"]])
         buttongroup.draw(window)
-        displayinfo()
+        if dotutorial:
+            tutorial()
+        else:
+            displayinfo()
         if mouse.objective["objective"] == "anger" and mouse.objective["amount"] - len(mouse.angry) <= 0:
             screen = "game over"
             update(cargroup, "stop")
