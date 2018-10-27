@@ -4,7 +4,9 @@ import structures, entities, levels
 
 #Copyright Orion Williams 2018
 
+pygame.init()
 pygame.font.init()
+pygame.mixer.init()
 window = pygame.display.set_mode([800, 600])
 pygame.display.set_caption("Road Rage")
 window.fill([88, 198, 73])
@@ -25,6 +27,9 @@ night_setting = [200, 166, 133, 100, 66, 33, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 17, 3
 accidentpos = [0, 0]
 tutorialindex = 0
 dotutorial = False
+lightswitch = pygame.mixer.Sound("./sfx/light-switch.wav")
+motorcycle = pygame.mixer.Sound("./sfx/Motorcycle.wav")
+car = pygame.mixer.Sound("./sfx/Car.wav")
 
 scoreFile = open("./data/scores.dat", "rb")
 try:
@@ -33,7 +38,8 @@ except:
     highScores = [[0, "player"], [0, "player"], [0, "player"], [0, "player"], [0, "player"]]
 scoreFile.close()
 
-volume = 0.5
+volume = 5
+oldvolume = 5
 level = 0
 page = 1
 cargroup = pygame.sprite.Group()
@@ -79,11 +85,6 @@ class slider(pygame.sprite.Sprite):
     def drag(self):
         global mouse
 
-        print self.boundaryrect.left + 3
-        print self.rect.left
-
-        print self.rect.left < self.boundaryrect.left + 3
-
         if self.clicked:
             if mouse.rect.left < self.boundaryrect.right - 6 and self.rect.left < self.boundaryrect.left + 3:
                 self.rect.left = mouse.rect.centerx
@@ -93,7 +94,6 @@ class slider(pygame.sprite.Sprite):
                 self.rect.left = mouse.rect.centerx
 
             self.where = int(self.rect.left - self.pos[0]) / 10
-            print self.where
 
 class textbox(pygame.sprite.Sprite):
     def __init__(self, pos, text, len, max):
@@ -251,7 +251,7 @@ gamemodesButton = button("[6] gamemodes", [10, 210], False)
 nextButton = button("[n] next", [20, 560], False)
 skipButton = button("[x] skip tutorial", [140, 560], False)
 
-name = textbox([10, 290], "player", 100, 20)
+name = textbox([10, 290], "player", 250, 20)
 
 volumeSlider = slider([243, 188], 11, 5)
 
@@ -368,7 +368,7 @@ def selectLevel():
     level12.draw()
 
 def intro():
-    global mouse, level, sleep
+    global mouse, level, sleep, volume
     window.fill([0, 0, 0])
 
     pygame.time.set_timer(pygame.USEREVENT + 1, 10000)
@@ -446,8 +446,9 @@ def intro():
         window.blit(text, [400 - rect, 230])
     pygame.display.flip()
 
-    sleep(3)
 
+    sleep(3)
+    
     for i in range(20):
         background()
         roadgroup.draw(window)
@@ -847,7 +848,7 @@ def settingsScreen():
     window.blit(text, [443, 220])
 
     text = font.render(
-        "art made in photoshop cs5", 1,
+        "art made in photoshop", 1,
         [255, 255, 255])
     window.blit(text, [443, 250])
 
@@ -1069,14 +1070,21 @@ def background():
     window.blit(bkg, [0, 0])
 
 def update(group, action):
-    global cargroup, roadgroup, lightgroup, mouse, window
+    global cargroup, roadgroup, lightgroup, mouse, window, volume
+
+    oldvolume = volume
+
+    if not sfx:
+        volume = 0.0
 
     if group == cargroup:
-        group.update(action, cargroup, mouse, lightgroup, window)
+        group.update(action, cargroup, mouse, lightgroup, window, volume)
     elif group == lightgroup:
-        group.update(action, window, mouse)
+        group.update(action, window, mouse, volume)
     else:
         group.update(action)
+
+    volume = oldvolume
 
 def getButtons(level):
     buttons = pygame.sprite.Group()
@@ -1241,7 +1249,10 @@ while running:
             if screen == "settings":
                 volumeSlider.clicked = False
                 volume = volumeSlider.where
-                #pygame.mixer_music.set_volume(float(volume * 0.1))
+                if mouse.rect.colliderect(volumeSlider.rect):
+                    if sfx:
+                        lightswitch.set_volume(float(volume * 0.1))
+                        lightswitch.play()
         if event.type == pygame.MOUSEMOTION:
             mouse.move(event.pos[0], event.pos[1])
             if screen == "settings":
@@ -1567,7 +1578,8 @@ while running:
                     elif type != 0 and type != 1:
                         cargroup.add(entities.car(pos, i.orientation, dir, cargroup))
         if event.type == pygame.USEREVENT + 2:
-            update(cargroup, "wait")
+            if screen == "game":
+                update(cargroup, "wait")
             pygame.time.set_timer(pygame.USEREVENT + 2, 1000)
             if screen == "game" and mouse.objective["time"] != "freeplay":
                 if mouse.objective["objective"] == "survival":
@@ -1614,7 +1626,7 @@ while running:
         update(lightgroup, "draw")
         night(night_setting[mouse.objective["tod"]])
         buttongroup.draw(window)
-        if dotutorial:
+        if dotutorial and level == 1:
             tutorial()
         else:
             displayinfo()
@@ -1706,14 +1718,17 @@ while running:
     if screen == "how":
         background()
         howScreen()
+        update(cargroup, "stop")
 
     if screen == "how page":
         background()
+        update(cargroup, "stop")
         howPageScreen(page)
 
     if screen == "settings":
         background()
         settingsScreen()
+        update(cargroup, "stop")
 
 
     if screen == "pause":
@@ -1741,15 +1756,24 @@ while running:
     if screen == "select level":
         background()
         selectLevel()
+        update(cargroup, "stop")
 
     if screen == "intro":
         window.fill([0, 0, 0])
+        if sfx:
+            playchoice = random.randint(0, 1)
+            if playchoice == 0:
+                car.play()
+            elif playchoice == 1:
+                motorcycle.play()
         intro()
         screen = "game"
+        update(cargroup, "stop")
 
     if screen == "high score":
         background()
         highScore()
+        update(cargroup, "stop")
 
     pygame.display.flip()
 

@@ -27,6 +27,7 @@ class light(pygame.sprite.Sprite):
         pygame.sprite.Sprite.__init__(self)
         self.orientation = orientation
         self.id = id
+        self.sound = pygame.mixer.Sound("./sfx/light-switch.wav")
         if orientation == "vertical":
             self.image = pygame.surface.Surface([60, 10])
             self.rect = pygame.surface.Surface([60, 100])
@@ -47,9 +48,11 @@ class light(pygame.sprite.Sprite):
             self.image1.fill([255, 0, 0])
             self.image2 = self.image
             self.image2.fill([255, 0, 0])
-    def update(self, action, screen, mouse):
+    def update(self, action, screen, mouse, volume):
         if action == "toggle" and self.rect.collidepoint([mouse.rect.centerx, mouse.rect.centery]):
             self.light = not self.light
+            self.sound.set_volume(float(volume * 0.1))
+            self.sound.play()
             print self.light
             if self.light:
                 self.image1 = self.image

@@ -1,5 +1,8 @@
 import pygame, random
 
+pygame.init()
+pygame.mixer.init()
+
 class car(pygame.sprite.Sprite):
     def __init__(self, pos, orientation, direction, group):
         pygame.sprite.Sprite.__init__(self)
@@ -9,6 +12,8 @@ class car(pygame.sprite.Sprite):
         self.headlightfiles = ["./images/cars/headlights/h1.png", "./images/cars/headlights/h2.png", "./images/cars/headlights/h3.png", "./images/cars/headlights/h4.png"]
         self.frown = pygame.image.load("./images/frowny.png")
         self.accident = pygame.image.load("./images/accident.png")
+        self.horn = pygame.mixer.Sound("./sfx/horn.wav")
+        self.crash = pygame.mixer.Sound("./sfx/collision.wav")
         self.imagev = pygame.surface.Surface([20, 40])
         self.imageh = pygame.surface.Surface([40, 20])
         self.imagevc = pygame.surface.Surface([20, 50])
@@ -16,6 +21,7 @@ class car(pygame.sprite.Sprite):
         self.imagev.fill([255, 0, 0])
         self.imageh.fill([255, 0, 0])
         self.rectv = self.imagev.get_rect()
+        self.soundplayed = False
         self.recth = self.imageh.get_rect()
         self.rectvc = self.imagevc.get_rect()
         self.recthc = self.imagehc.get_rect()
@@ -113,7 +119,7 @@ class car(pygame.sprite.Sprite):
                 self.rect.centery += self.speed
                 self.rectc.centery += self.speed
 
-    def checkcrash(self, group, mouse):
+    def checkcrash(self, group, mouse, volume):
         if not self.crashed:
             self.kill()
 
@@ -129,6 +135,8 @@ class car(pygame.sprite.Sprite):
                 mouse.accident = True
                 mouse.accidentinfo = [self.rect.centerx, self.rect.centery]
                 mouse.accidents += 0.5
+                self.crash.set_volume(float(volume * 0.1))
+                self.crash.play()
                 if mouse.objective["objective"] == "crashes" and mouse.objective["amount"] > 0:
                     mouse.objective["amount"] -= 0.5
 
@@ -144,7 +152,7 @@ class car(pygame.sprite.Sprite):
                     self.stopped = True
                     self.stop()
 
-    def update(self, action, cars, mouse, lights, screen):
+    def update(self, action, cars, mouse, lights, screen, volume):
         if self.rect.bottom < 0 or self.rect.top > 600 or self.rect.left < 0 or self.rect.right > 800:
             self.kill()
             mouse.score += 1
@@ -156,11 +164,10 @@ class car(pygame.sprite.Sprite):
             if action == "accel":
                 self.drive(True)
         if action == "crash":
-            self.checkcrash(cars, mouse)
+            self.checkcrash(cars, mouse, volume)
         if action == "traffic" and not self.crashed:
             self.checktraffic(lights)
-        if action == "kill" and self.rect.collidepoint([mouse.rect.centerx, mouse.rect.centery]):
-            print "eh"
+        if action == "kill" and self.rect.collidepoint([mouse.rect.centerx, mouse.rect.centery]) and self.crashed:
             self.kill()
         if action == "draw":
             if mouse.objective["tod"] < 6 or mouse.objective["tod"] > 15 and not self.crashed:
@@ -182,6 +189,10 @@ class car(pygame.sprite.Sprite):
                     screen.blit(self.frown, [self.rect.centerx - 7, self.rect.centery - 7])
                     if not self in mouse.angry:
                         mouse.angry.add(self)
+                        if not self.soundplayed:
+                            self.horn.set_volume(float(volume * 0.1))
+                            self.horn.play()
+                            self.soundplayed = True
         if action == "stop":
             self.stop()
             self.stopped = True
@@ -204,6 +215,9 @@ class motorcycle(pygame.sprite.Sprite):
         self.headlightfiles = ["./images/cars/headlights/h1m.png", "./images/cars/headlights/h2m.png", "./images/cars/headlights/h3m.png", "./images/cars/headlights/h4m.png"]
         self.frown = pygame.image.load("./images/frowny.png")
         self.accident = pygame.image.load("./images/accident.png")
+        self.horn = pygame.mixer.Sound("./sfx/horn.wav")
+        self.crash = pygame.mixer.Sound("./sfx/collision.wav")
+        self.soundplayed = False
         self.imagev = pygame.surface.Surface([10, 29])
         self.imageh = pygame.surface.Surface([29, 10])
         self.imagevc = pygame.surface.Surface([10, 39])
@@ -308,7 +322,7 @@ class motorcycle(pygame.sprite.Sprite):
                 self.rect.centery += self.speed
                 self.rectc.centery += self.speed
 
-    def checkcrash(self, group, mouse):
+    def checkcrash(self, group, mouse, volume):
         if not self.crashed:
             self.kill()
 
@@ -324,6 +338,8 @@ class motorcycle(pygame.sprite.Sprite):
                 mouse.accident = True
                 mouse.accidentinfo = [self.rect.centerx, self.rect.centery]
                 mouse.accidents += 0.5
+                self.crash.set_volume(float(volume * 0.1))
+                self.crash.play()
                 if mouse.objective["objective"] == "crashes" and mouse.objective["amount"] > 0:
                     mouse.objective["amount"] -= 0.5
 
@@ -339,7 +355,7 @@ class motorcycle(pygame.sprite.Sprite):
                     self.stopped = True
                     self.stop()
 
-    def update(self, action, cars, mouse, lights, screen):
+    def update(self, action, cars, mouse, lights, screen, volume):
         if self.rect.bottom < 0 or self.rect.top > 600 or self.rect.left < 0 or self.rect.right > 800:
             self.kill()
             mouse.score += 1
@@ -351,11 +367,10 @@ class motorcycle(pygame.sprite.Sprite):
             if action == "accel":
                 self.drive(True)
         if action == "crash":
-            self.checkcrash(cars, mouse)
+            self.checkcrash(cars, mouse, volume)
         if action == "traffic" and not self.crashed:
             self.checktraffic(lights)
-        if action == "kill" and self.rect.collidepoint([mouse.rect.centerx, mouse.rect.centery]):
-            print "eh"
+        if action == "kill" and self.rect.collidepoint([mouse.rect.centerx, mouse.rect.centery]) and self.crashed:
             self.kill()
         if action == "draw":
             if mouse.objective["tod"] < 6 or mouse.objective["tod"] > 15 and not self.crashed:
@@ -377,6 +392,10 @@ class motorcycle(pygame.sprite.Sprite):
                     screen.blit(self.frown, [self.rect.centerx - 7, self.rect.centery - 7])
                     if not self in mouse.angry:
                         mouse.angry.add(self)
+                        if not self.soundplayed:
+                            self.horn.set_volume(float(volume * 0.1))
+                            self.horn.play()
+                            self.soundplayed = True
         if action == "stop":
             self.stop()
             self.stopped = True
@@ -399,6 +418,9 @@ class bus(pygame.sprite.Sprite):
         self.headlightfiles = ["./images/cars/headlights/h1.png", "./images/cars/headlights/h2.png", "./images/cars/headlights/h3.png", "./images/cars/headlights/h4.png"]
         self.frown = pygame.image.load("./images/frowny.png")
         self.accident = pygame.image.load("./images/accident.png")
+        self.horn = pygame.mixer.Sound("./sfx/horn.wav")
+        self.crash = pygame.mixer.Sound("./sfx/collision.wav")
+        self.soundplayed = False
         self.imagev = pygame.surface.Surface([20, 80])
         self.imageh = pygame.surface.Surface([80, 20])
         self.imagevc = pygame.surface.Surface([20, 90])
@@ -503,7 +525,7 @@ class bus(pygame.sprite.Sprite):
                 self.rect.centery += self.speed
                 self.rectc.centery += self.speed
 
-    def checkcrash(self, group, mouse):
+    def checkcrash(self, group, mouse, volume):
         if not self.crashed:
             self.kill()
 
@@ -519,6 +541,8 @@ class bus(pygame.sprite.Sprite):
                 mouse.accident = True
                 mouse.accidentinfo = [self.rect.centerx, self.rect.centery]
                 mouse.accidents += 0.5
+                self.crash.set_volume(float(volume * 0.1))
+                self.crash.play()
                 if mouse.objective["objective"] == "crashes" and mouse.objective["amount"] > 0:
                     mouse.objective["amount"] -= 0.5
 
@@ -534,7 +558,7 @@ class bus(pygame.sprite.Sprite):
                     self.stopped = True
                     self.stop()
 
-    def update(self, action, cars, mouse, lights, screen):
+    def update(self, action, cars, mouse, lights, screen, volume):
         if self.rect.bottom < 0 or self.rect.top > 600 or self.rect.left < 0 or self.rect.right > 800:
             self.kill()
             mouse.score += 1
@@ -546,11 +570,10 @@ class bus(pygame.sprite.Sprite):
             if action == "accel":
                 self.drive(True)
         if action == "crash":
-            self.checkcrash(cars, mouse)
+            self.checkcrash(cars, mouse, volume)
         if action == "traffic" and not self.crashed:
             self.checktraffic(lights)
-        if action == "kill" and self.rect.collidepoint([mouse.rect.centerx, mouse.rect.centery]):
-            print "eh"
+        if action == "kill" and self.rect.collidepoint([mouse.rect.centerx, mouse.rect.centery]) and self.crashed:
             self.kill()
         if action == "draw":
             if mouse.objective["tod"] < 6 or mouse.objective["tod"] > 15 and not self.crashed:
@@ -572,6 +595,10 @@ class bus(pygame.sprite.Sprite):
                     screen.blit(self.frown, [self.rect.centerx - 7, self.rect.centery - 7])
                     if not self in mouse.angry:
                         mouse.angry.add(self)
+                        if not self.soundplayed:
+                            self.horn.set_volume(float(volume * 0.1))
+                            self.horn.play()
+                            self.soundplayed = True
         if action == "stop":
             self.stop()
             self.stopped = True
