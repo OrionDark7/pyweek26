@@ -53,7 +53,6 @@ class light(pygame.sprite.Sprite):
             self.light = not self.light
             self.sound.set_volume(float(volume * 0.1))
             self.sound.play()
-            print self.light
             if self.light:
                 self.image1 = self.image
                 self.image1.fill([0, 255, 0])
@@ -66,7 +65,6 @@ class light(pygame.sprite.Sprite):
                 self.image2.fill([255, 0, 0])
         if action == "toggle-id" and self.id == mouse.id:
             self.light = not self.light
-            print self.light
             if self.light:
                 self.image1 = self.image
                 self.image1.fill([0, 255, 0])
