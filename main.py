@@ -1209,6 +1209,7 @@ while running:
                     # getLevel(level)
                 if event.key == pygame.K_s:
                     screen = "settings"
+                    previous = "menu"
                 if event.key == pygame.K_h:
                     screen = "how"
                 if event.key == pygame.K_q:

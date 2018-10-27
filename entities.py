@@ -16,8 +16,8 @@ class car(pygame.sprite.Sprite):
         self.crash = pygame.mixer.Sound("./sfx/collision.wav")
         self.imagev = pygame.surface.Surface([20, 40])
         self.imageh = pygame.surface.Surface([40, 20])
-        self.imagevc = pygame.surface.Surface([20, 50])
-        self.imagehc = pygame.surface.Surface([50, 20])
+        self.imagevc = pygame.surface.Surface([20, 48])
+        self.imagehc = pygame.surface.Surface([48, 20])
         self.imagev.fill([255, 0, 0])
         self.imageh.fill([255, 0, 0])
         self.rectv = self.imagev.get_rect()
@@ -45,14 +45,14 @@ class car(pygame.sprite.Sprite):
             self.orientation = "h"
         self.rect.left, self.rect.top = list(pos)
         if direction == 1:
-            self.rectvc.left, self.rectvc.top = pos[0], pos[1] - 10
-            self.recthc.left, self.recthc.top = pos[0] - 10, pos[1]
+            self.rectvc.left, self.rectvc.top = pos[0], pos[1] - 8
+            self.recthc.left, self.recthc.top = pos[0] - 8, pos[1]
         elif direction == -1:
             self.rectvc.left, self.rectvc.top = pos[0], pos[1]
             self.recthc.left, self.recthc.top = pos[0], pos[1]
         else:
-            self.rectvc.left, self.rectvc.top = pos[0], pos[1] - 10
-            self.recthc.left, self.recthc.top = pos[0] - 10, pos[1]
+            self.rectvc.left, self.rectvc.top = pos[0], pos[1] - 8
+            self.recthc.left, self.recthc.top = pos[0] - 8, pos[1]
         if orientation == "vertical":
             self.rectc = self.rectvc
         elif orientation == "horizontal":
@@ -220,8 +220,8 @@ class motorcycle(pygame.sprite.Sprite):
         self.soundplayed = False
         self.imagev = pygame.surface.Surface([10, 30])
         self.imageh = pygame.surface.Surface([30, 10])
-        self.imagevc = pygame.surface.Surface([10, 40])
-        self.imagehc = pygame.surface.Surface([40, 10])
+        self.imagevc = pygame.surface.Surface([10, 38])
+        self.imagehc = pygame.surface.Surface([40, 38])
         self.imagev.fill([255, 0, 0])
         self.imageh.fill([255, 0, 0])
         self.rectv = self.imagev.get_rect()
@@ -248,14 +248,14 @@ class motorcycle(pygame.sprite.Sprite):
             self.orientation = "h"
         self.rect.left, self.rect.top = list(pos)
         if direction == 1:
-            self.rectvc.left, self.rectvc.top = pos[0], pos[1] - 10
-            self.recthc.left, self.recthc.top = pos[0] - 10, pos[1]
+            self.rectvc.left, self.rectvc.top = pos[0], pos[1] - 8
+            self.recthc.left, self.recthc.top = pos[0] - 8, pos[1]
         elif direction == -1:
             self.rectvc.left, self.rectvc.top = pos[0], pos[1]
             self.recthc.left, self.recthc.top = pos[0], pos[1]
         else:
-            self.rectvc.left, self.rectvc.top = pos[0], pos[1] - 10
-            self.recthc.left, self.recthc.top = pos[0] - 10, pos[1]
+            self.rectvc.left, self.rectvc.top = pos[0], pos[1] - 8
+            self.recthc.left, self.recthc.top = pos[0] - 8, pos[1]
         if orientation == "vertical":
             self.rectc = self.rectvc
         elif orientation == "horizontal":
@@ -298,12 +298,12 @@ class motorcycle(pygame.sprite.Sprite):
 
         #speed = direction(speed + acceleration)
 
-        if self.speed < 5 and self.speed > -5:
+        if self.speed < 4 and self.speed > -4:
             self.speed = (self.speed + self.acceleration)
-        if self.speed > 5:
-            self.speed = 5
-        if self.speed < -5:
-            self.speed = -5
+        if self.speed > 4:
+            self.speed = 4
+        if self.speed < -4:
+            self.speed = -4
 
         #move car + speed
 
@@ -423,8 +423,8 @@ class bus(pygame.sprite.Sprite):
         self.soundplayed = False
         self.imagev = pygame.surface.Surface([20, 80])
         self.imageh = pygame.surface.Surface([80, 20])
-        self.imagevc = pygame.surface.Surface([20, 90])
-        self.imagehc = pygame.surface.Surface([90, 20])
+        self.imagevc = pygame.surface.Surface([20, 96])
+        self.imagehc = pygame.surface.Surface([96, 20])
         self.imagev.fill([255, 0, 0])
         self.imageh.fill([255, 0, 0])
         self.rectv = self.imagev.get_rect()
@@ -451,14 +451,14 @@ class bus(pygame.sprite.Sprite):
             self.orientation = "h"
         self.rect.left, self.rect.top = list(pos)
         if direction == 1:
-            self.rectvc.left, self.rectvc.top = pos[0], pos[1] - 10
-            self.recthc.left, self.recthc.top = pos[0] - 10, pos[1]
+            self.rectvc.left, self.rectvc.top = pos[0], pos[1] - 16
+            self.recthc.left, self.recthc.top = pos[0] - 16, pos[1]
         elif direction == -1:
             self.rectvc.left, self.rectvc.top = pos[0], pos[1]
             self.recthc.left, self.recthc.top = pos[0], pos[1]
         else:
-            self.rectvc.left, self.rectvc.top = pos[0], pos[1] - 10
-            self.recthc.left, self.recthc.top = pos[0] - 10, pos[1]
+            self.rectvc.left, self.rectvc.top = pos[0], pos[1] - 16
+            self.recthc.left, self.recthc.top = pos[0] - 16, pos[1]
         if orientation == "vertical":
             self.rectc = self.rectvc
         elif orientation == "horizontal":
