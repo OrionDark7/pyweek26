@@ -42,6 +42,7 @@ volume = 5
 oldvolume = 5
 level = 0
 page = 1
+stopped = False
 cargroup = pygame.sprite.Group()
 roadgroup = pygame.sprite.Group()
 lightgroup = pygame.sprite.Group()
@@ -371,8 +372,8 @@ def intro():
     global mouse, level, sleep, volume
     window.fill([0, 0, 0])
 
-    pygame.time.set_timer(pygame.USEREVENT + 1, 10000)
-    pygame.time.set_timer(pygame.USEREVENT + 2, 10000)
+    pygame.time.set_timer(pygame.USEREVENT + 1, 8000)
+    pygame.time.set_timer(pygame.USEREVENT + 2, 8000)
 
     pygame.display.flip()
     sleep(2)
@@ -638,10 +639,12 @@ def howPageScreen(screen):
         window.blit(text, [10, 310])
         text = font.render("a red, frowny face above them. angry drivers penalize how", 1, [255, 255, 255])
         window.blit(text, [10, 330])
-        text = font.render('much time is left on a level, but they can be "calmed down"', 1, [255, 255, 255])
+        text = font.render('much time is left on a level, or even stop the timer completely.', 1, [255, 255, 255])
         window.blit(text, [10, 350])
-        text = font.render("by restoring the flow of traffic in front of them.", 1, [255, 255, 255])
+        text = font.render('but, they can be "calmed down" by restoring the flow of traffic', 1, [255, 255, 255])
         window.blit(text, [10, 370])
+        text = font.render('in front of them.', 1, [255, 255, 255])
+        window.blit(text, [10, 390])
 
         image = pygame.image.load("./images/ui/how-to/traffic lights.png")
         window.blit(image, [80, 430])
@@ -969,6 +972,19 @@ def accidentNotification():
     if show_me:
         window.blit(pygame.transform.scale2x(arrow), [accidentpos[0], accidentpos[1]])
 
+def timerStoppedNotification():
+    global mouse, window, show_me, arrow, accidentpos
+    rect = pygame.surface.Surface([340, 60])
+    rect.fill([0, 0, 0])
+    rect.set_alpha(200)
+    window.blit(rect, [10, 10])
+    font = pygame.font.Font("./resources/Danger on the Motorway.otf", 16)
+    text = font.render(
+        "the timer has been stopped!", 1,
+        [255, 255, 255])
+    window.blit(text, [20, 20])
+    closeButton.draw()
+
 def displayinfo():
     global mouse, window
     rect = pygame.surface.Surface([350, 80])
@@ -1171,7 +1187,7 @@ while running:
                     getLevel(level)
                     mouse.score = 0
                     mouse.angry = pygame.sprite.Group()
-            if screen == "select level" and keySwitch.state:
+            elif screen == "select level" and keySwitch.state:
                 if event.key == pygame.K_b:
                     screen = "select"
             elif screen == "select" and keySwitch.state:
@@ -1203,13 +1219,17 @@ while running:
                     previous = "menu"
                 if event.key == pygame.K_h:
                     screen = "how"
+                    previous = "menu"
                 if event.key == pygame.K_q:
                     running = False
             if screen == "game":
                 if event.key == pygame.K_ESCAPE:
                     screen = "pause"
                     update(cargroup, "stop")
-                if mouse.accident and screen == "game" and keySwitch.state:
+                if stopped and not mouse.accident and screen == "game" and keySwitch.state:
+                    if event.key == pygame.K_c:
+                        stopped = False
+                if mouse.accident and not stopped and screen == "game" and keySwitch.state:
                     if event.key == pygame.K_c:
                         mouse.accident = False
                         show_me = False
@@ -1256,7 +1276,12 @@ while running:
             if clicked[0] == 1:
                 if screen == "game":
                     update(lightgroup, "toggle")
-                    if mouse.accident:
+                    if stopped and not mouse.accident:
+                        closeButton.click()
+                        if closeButton.clicked:
+                            stopped = False
+                            closeButton.clicked = False
+                    if mouse.accident and not stopped:
                         closeButton.click()
                         if closeButton.clicked:
                             mouse.accident = False
@@ -1316,11 +1341,19 @@ while running:
                         getLevel(0)
                         quitButton.clicked = False
                 elif screen == "game over":
+                    if mouse.objective["objective"] == "survival":
+                        scoreButton.click()
+                        if scoreButton.clicked:
+                            screen = "high score"
+                            scoreButton.clicked = False
                     menuButton.click()
                     if menuButton.clicked:
-                        mouse.reset_stats()
-                        screen = "select level"
+                        if mouse.objective["objective"] == "survival":
+                            screen = "select"
+                        else:
+                            screen = "select level"
                         level = 0
+                        mouse.reset_stats()
                         getLevel(level)
                         menuButton.clicked = False
                         mouse.score = 0
@@ -1333,11 +1366,6 @@ while running:
                         replayButton.clicked = False
                         mouse.score = 0
                         mouse.angry = pygame.sprite.Group()
-                    if mouse.objective["objective"] == "survival":
-                        scoreButton.click()
-                        if scoreButton.clicked:
-                            screen = "high score"
-                            scoreButton.clicked = False
                 elif screen == "you win":
                     menuButton.click()
                     if menuButton.clicked:
@@ -1425,11 +1453,6 @@ while running:
                     if backButton.clicked:
                         screen = "how"
                         backButton.clicked = False
-                elif screen == "select level":
-                    backButton.click()
-                    if backButton.clicked:
-                        screen = "select"
-                        backButton.clicked = False
                 elif screen == "high score":
                     backButton.click()
                     if backButton.clicked:
@@ -1439,7 +1462,7 @@ while running:
                     if enterButton.clicked:
                         enteringName = True
                         enterButton.clicked = False
-                if screen == "select":
+                elif screen == "select":
                     classic.click()
                     if classic.clicked:
                         screen = "select level"
@@ -1469,6 +1492,10 @@ while running:
                         screen = "menu"
                         backButton.clicked = False
                 elif screen == "select level":
+                    backButton.click()
+                    if backButton.clicked:
+                        screen = "select"
+                        backButton.clicked = False
                     level1.click()
                     if level1.clicked:
                         level = 1
@@ -1549,7 +1576,7 @@ while running:
 
         if event.type == pygame.USEREVENT:
             update(cargroup, "accel")
-        if event.type == pygame.USEREVENT + 1 and screen == "game" or screen == "menu":
+        if event.type == pygame.USEREVENT + 1 and screen == "game" or screen == "menu" or screen == "select":
             pygame.time.set_timer(pygame.USEREVENT + 1, 2250)
             for i in roadgroup:
                 orientation = i.orientation
@@ -1575,10 +1602,17 @@ while running:
             pygame.time.set_timer(pygame.USEREVENT + 2, 1000)
             if screen == "game" and mouse.objective["time"] != "freeplay":
                 if mouse.objective["objective"] == "survival":
-                    mouse.objective["time"] += 1
+                    if len(mouse.angry) > 20:
+                        mouse.objective["time"] += 0
+                        if not stopped:
+                            stopped = True
+                    else:
+                        mouse.objective["time"] += 1
+                        stopped = False
                 elif mouse.objective["objective"] != "survival":
                     if mouse.objective["objective"] == "cars":
                         if mouse.objective["time"] > 0:
+                            stopped = False
                             if len(mouse.angry) > 20:
                                 mouse.objective["time"] -= 4
                             elif len(mouse.angry) > 10:
@@ -1588,11 +1622,15 @@ while running:
                     if mouse.objective["objective"] == "crashes" or mouse.objective["objective"] == "anger":
                         if mouse.objective["time"] > 0:
                             if len(mouse.angry) > 20:
-                                mouse.objective["time"] -= 0.25
+                                mouse.objective["time"] -= 0
+                                if not stopped:
+                                    stopped = True
                             elif len(mouse.angry) > 10:
                                 mouse.objective["time"] -= 0.5
+                                stopped = False
                             else:
                                 mouse.objective["time"] -= 1
+                                stopped = False
                 if mouse.objective["time"] <= 0:
                     if mouse.objective["objective"] == "cars":
                         screen = "game over"
@@ -1673,7 +1711,10 @@ while running:
                     score = str(int(math.floor(mouse.objective["time"] / 60))) + ":" + str(
                         int(math.floor(mouse.objective["time"] % 60)))
             else:
-                accidentNotification()
+                if not stopped:
+                    accidentNotification()
+        elif stopped and not mouse.accident:
+            timerStoppedNotification()
 
     if screen == "game over":
         background()
@@ -1760,6 +1801,7 @@ while running:
                 motorcycle.play()
         intro()
         screen = "game"
+        mouse.accident = False
         update(cargroup, "stop")
 
     if screen == "high score":
